@@ -1,7 +1,7 @@
 # Личный проект «Кэндишоп» [![Build status][travis-image]][travis-url]
 
 * Студент: [Анастасия Роговенко](https://up.htmlacademy.ru/javascript/15/user/691317).
-* Наставник: `Неизвестно`.
+* Наставник: [Дмитрий Батогов](https://htmlacademy.ru/profile/batogov).
 
 ---
 
