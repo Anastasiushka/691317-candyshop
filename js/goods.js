@@ -33,7 +33,7 @@ for (var i = 0; i <= consistI; i++) {
   } else {
     consist += compound[getRandomNumber(0, compound.length - 1)] + '.';
   }
-};
+}
 
 var goodsAmount = 26;
 var getDescription = function (descriptionNumber) {
@@ -49,12 +49,12 @@ var getDescription = function (descriptionNumber) {
         value: getRandomNumber(1, 5),
         number: getRandomNumber(10, 900)
       },
-      nutrition_facts: {
+      nutritionFacts: {
         sugar: sugarTF,
         energy: getRandomNumber(70, 500),
         contents: consist
       }
-    })
+    });
   }
   return descriptions;
 };
@@ -75,7 +75,7 @@ if (goods.rating.value === 2) {
   ratingClass = '.stars__rating--four';
 } if (goods.rating.value === 5) {
   ratingClass = '.stars__rating--five';
-};
+}
 
 var renderCard = function (good) {
   var goodElement = catalogCard.cloneNode(true);
@@ -85,8 +85,8 @@ var renderCard = function (good) {
   goodElement.querySelector('.card__weight').textContent = ' ' + good.weight + ' Г';
   goodElement.querySelector(ratingClass).textContent = good.rating.value;
   goodElement.querySelector('.star__count').textContent = '(' + good.rating.number + ')';
-  goodElement.querySelector('.card__characteristic').textContent = good.nutrition_facts.sugarTF + good.nutrition_facts.energy + ' ккал';
-  goodElement.querySelector('.card__composition-list').textContent = good.nutrition_facts.consist;
+  goodElement.querySelector('.card__characteristic').textContent = good.nutritionFacts.sugarTF + good.nutritionFacts.energy + ' ккал';
+  goodElement.querySelector('.card__composition-list').textContent = good.nutritionFacts.consist;
   return goodElement;
 };
 
@@ -105,7 +105,7 @@ var getTrolleyDescription = function (trolleyDescriptionNumber) {
       name: GOOD_NAME[j],
       picture: IMAGE_ADDRESS[j],
       price: getRandomNumber(10, 150) * 10
-    })
+    });
   }
   return trolleyDescriptions;
 };
