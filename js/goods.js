@@ -81,8 +81,7 @@ var renderCard = function (good) {
   catalogCards.classList.add(amountClass);
   goodElement.querySelector('.card__title').textContent = good.name;
   goodElement.querySelector('.card__img').src = good.picture;
-  goodElement.querySelector('.card__price').textContent = good.price + ' ';
-  goodElement.querySelector('.card__weight').textContent = '/ ' + good.weight + ' Г';
+  goodElement.querySelector('.card__price').innerHTML = good.price + '<span class="card__currency"> ₽ </span><span class="card__weight">/ ' + good.price + ' Г</span>';
   goodElement.querySelector('.stars__rating').textContent = good.rating.value;
   var starsRating = goodElement.querySelector('.stars__rating');
   starsRating.classList.add(ratingClass);
