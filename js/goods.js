@@ -59,7 +59,7 @@ var getDescription = function (descriptionNumber) {
 var goods = getDescription(GOODS_AMOUNT);
 
 var renderCard = function (good) {
-    var ratingClass = '.stars__rating--one';
+  var ratingClass = '.stars__rating--one';
   if (good.rating.value === 2) {
     ratingClass = '.stars__rating--two';
   } else if (good.rating.value === 3) {
@@ -70,7 +70,7 @@ var renderCard = function (good) {
     ratingClass = '.stars__rating--five';
   }
 
-    var amountClass = '.card--little';
+  var amountClass = '.card--little';
   if (goods.amount > 5) {
     amountClass = '.card--in-stock';
   } else if (goods.amount === 0) {
