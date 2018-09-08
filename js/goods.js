@@ -11,8 +11,7 @@ catalogCards.classList.remove('catalog__cards--load');
 var catalogLoad = document.querySelector('.catalog__load');
 catalogLoad.classList.add('visually-hidden');
 var catalogCard = document.querySelector('#card').content.querySelector('.catalog__card');
-var readyCard = document.querySelector(amountClass);
-var goodsCard = document.querySelector('.goods_card');
+var goodsCard = document.querySelector('#card-order').content.querySelector('.goods_card');
 var goodsCards = document.querySelector('.goods__cards');
 goodsCards.classList.remove('goods__cards--empty');
 var goodsCardEmpty = document.querySelector('.goods__card-empty');
@@ -26,7 +25,7 @@ var getRandomNumber = function (min, max) {
 var sugarTF = getRandomNumber(1, 2) === 1 ? 'Содержит сахар. ' : 'Без сахара. ';
 var compound = ['молоко', 'сливки', 'вода', 'пищевой краситель', 'патока', 'ароматизатор бекона', 'ароматизатор свинца', 'ароматизатор дуба, идентичный натуральному', 'ароматизатор картофеля', 'лимонная кислота', 'загуститель', 'эмульгатор', 'консервант: сорбат калия', 'посолочная смесь: соль, нитрит натрия', 'ксилит', 'карбамид', 'вилларибо', 'виллабаджо'];
 var consistI = getRandomNumber(1, compound.length);
-var consist;
+var consist = '';
 for (var i = 1; i <= consistI; i++) {
   if (i < consistI) {
     consist += compound[getRandomNumber(0, compound.length - 1)] + ', ';
@@ -59,33 +58,37 @@ var getDescription = function (descriptionNumber) {
 };
 var goods = getDescription(GOODS_AMOUNT);
 
-var amountClass = '.card--little';
-if (goods.amount > 5) {
-  amountClass = '.card--in-stock';
-} else if (goods.amount === 0) {
-  amountClass = '.card--soon';
-}
-var ratingClass = '.stars__rating--one';
-if (goods.value === 2) {
-  ratingClass = '.stars__rating--two';
-} else if (goods.value === 3) {
-  ratingClass = '.stars__rating--three';
-} else if (goods.value === 4) {
-  ratingClass = '.stars__rating--four';
-} else if (goods.value === 5) {
-  ratingClass = '.stars__rating--five';
-}
-
 var renderCard = function (good) {
+    var ratingClass = '.stars__rating--one';
+  if (good.rating.value === 2) {
+    ratingClass = '.stars__rating--two';
+  } else if (good.rating.value === 3) {
+    ratingClass = '.stars__rating--three';
+  } else if (good.rating.value === 4) {
+    ratingClass = '.stars__rating--four';
+  } else if (good.rating.value === 5) {
+    ratingClass = '.stars__rating--five';
+  }
+
+    var amountClass = '.card--little';
+  if (goods.amount > 5) {
+    amountClass = '.card--in-stock';
+  } else if (goods.amount === 0) {
+    amountClass = '.card--soon';
+  }
+
   var goodElement = catalogCard.cloneNode(true);
+  catalogCards.classList.add(amountClass);
   goodElement.querySelector('.card__title').textContent = good.name;
   goodElement.querySelector('.card__img').src = good.picture;
   goodElement.querySelector('.card__price').textContent = good.price + ' ';
   goodElement.querySelector('.card__weight').textContent = '/ ' + good.weight + ' Г';
-  goodElement.querySelector(ratingClass).textContent = good.value;
-  goodElement.querySelector('.star__count').textContent = '(' + good.number + ')';
-  goodElement.querySelector('.card__characteristic').textContent = good.sugarTF + good.energy + ' ккал';
-  goodElement.querySelector('.card__composition-list').textContent = good.consist;
+  goodElement.querySelector('.stars__rating').textContent = good.rating.value;
+  var starsRating = goodElement.querySelector('.stars__rating');
+  starsRating.classList.add(ratingClass);
+  goodElement.querySelector('.star__count').textContent = '(' + good.rating.number + ')';
+  goodElement.querySelector('.card__characteristic').textContent = good.nutritionFacts.sugarTF + good.nutritionFacts.energy + ' ккал';
+  goodElement.querySelector('.card__composition-list').textContent = good.nutritionFacts.consist;
   return goodElement;
 };
 
@@ -93,7 +96,7 @@ var fragment = document.createDocumentFragment();
 for (var k = 0; k < goods.length; k++) {
   fragment.appendChild(renderCard(goods[k]));
 }
-readyCard.appendChild(fragment);
+catalogCards.appendChild(fragment);
 
 
 var getTrolleyDescription = function (trolleyDescriptionNumber) {
