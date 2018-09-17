@@ -41,8 +41,8 @@ var deliverRoom = deliverCourierWrap.querySelector('input[name = "deliver-room"]
 var deliverDescription = deliverCourierWrap.querySelector('textarea[name = "deliver-description"]');
 var storeAddress = document.querySelectorAll('input[name = "store"]');
 var storeAddressMap = document.querySelector('.deliver__store-map-img');
-var orderCreationSuccess = document.querySelector('.order-creation__success');
-var orderCreationError = document.querySelector('.order-creation__error');
+// var orderCreationSuccess = document.querySelector('.order-creation__success');
+// var orderCreationError = document.querySelector('.order-creation__error');
 // var modalCloseSuccess = orderCreationSuccess.querySelector('.modal__close');
 // var modalCloseError = orderCreationError.querySelector('.modal__close');
 // var buySubmitButton = document.querySelector('.buy__submit-btn');
