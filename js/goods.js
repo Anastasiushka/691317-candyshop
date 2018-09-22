@@ -4,7 +4,6 @@ var GOOD_NAME = ['Чесночные сливки', 'Огуречный педа
 var IMAGES_PATH = 'img/cards/';
 var IMAGE_ADDRESS = ['gum-cedar.jpg', 'gum-chile.jpg', 'gum-eggplant.jpg', 'gum-mustard.jpg', 'gum-portwine.jpg', 'gum-wasabi.jpg', 'ice-cucumber.jpg', 'ice-eggplant.jpg', 'ice-garlic.jpg', 'ice-italian.jpg', 'ice-mushroom.jpg', 'ice-pig.jpg', 'marmalade-beer.jpg', 'marmalade-caviar.jpg', 'marmalade-corn.jpg', 'marmalade-new-year.jpg', 'marmalade-sour.jpg', 'marshmallow-bacon.jpg', 'marshmallow-beer.jpg', 'marshmallow-shrimp.jpg', 'marshmallow-spicy.jpg', 'marshmallow-wine.jpg', 'soda-bacon.jpg', 'soda-celery.jpg', 'soda-cob.jpg', 'soda-garlic.jpg', 'soda-peanut-grapes.jpg', 'soda-russian.jpg'];
 var GOODS_AMOUNT = 26;
-var TROLLEY_GOODS_AMOUNT = 0;
 // var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
 var MAP_PATH = 'img/map/';
@@ -135,12 +134,11 @@ for (var k = 0; k < goods.length; k++) {
 catalogCards.appendChild(fragment);
 
 var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
-var cardBtn = catalogCards.querySelectorAll('.card__btn');
 var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
 var mainHeaderBasket = document.querySelector('.main-header__basket');
 var goodsCardEmpty = document.querySelector('.goods__card-empty');
 
-cardFavoriteBtn.forEach(function(element) {
+cardFavoriteBtn.forEach(function (element) {
   var onCardFavoriteBtnClick = function (evt) {
     evt.preventDefault();
     element.classList.toggle('.card__btn-favorite--selected');
@@ -171,17 +169,13 @@ var renderTrolleyCard = function (trolleyGood) {
   return trolleyGoodElement;
 };
 
-allCatalogCards.forEach(function(elt, i) {
+allCatalogCards.forEach(function (elt) {
   var cardBtn = elt.querySelector('.card__btn');
   var onCardBtnClick = function (evt) {
     evt.preventDefault();
-    var getData = function () {
-      var eltData = elt.getAttribute('data-index');
-      window.eltData = eltData;
-    }();
+    var eltData = elt.getAttribute('data-index');
     goodsCardEmpty.classList.add('visually-hidden');
-    TROLLEY_GOODS_AMOUNT += 1;
-    var chosenCard = goods[window.eltData];
+    var chosenCard = goods[eltData];
     if (chosenCard.amount > 0) {
       chosenCard.amount -= 1;
       var chCard = {};
@@ -194,12 +188,12 @@ allCatalogCards.forEach(function(elt, i) {
       var hasCard = false;
       for (var i = 0; i < trolleyGoods.length; i++) {
         if (trolleyGoods[i].name === chCard.name) {
-          trolleyGoods[i].orderedAmount ++;
+          trolleyGoods[i].orderedAmount++;
           chCard.orderedAmount = trolleyGoods[i].orderedAmount;
           hasCard = true;
-        } 
+        }
       }
-      if(!hasCard) {
+      if (!hasCard) {
         trolleyGoods.push(chCard);
       }
       var trolleyFragment = document.createDocumentFragment();
@@ -226,7 +220,7 @@ allCatalogCards.forEach(function(elt, i) {
 
 var allTrolleyCards = goodsCards.querySelectorAll('.card-order');
 
-allTrolleyCards.forEach(function(elt, i) {
+allTrolleyCards.forEach(function (elt) {
   var orderCardClose = elt.querySelector('.card-order__close');
   var orderCardDecrease = elt.querySelector('.card-order__btn--decrease');
   var orderCardIncrease = elt.querySelector('.card-order__btn--increase');
@@ -256,7 +250,7 @@ allTrolleyCards.forEach(function(elt, i) {
   var decreaseOrderCardAmount = function () {
     if (elt.orderedAmount <= 0) {
       deleteCard();
-    } 
+    }
     if (allTrolleyCards.length > 0) {
       var trolleyFragment = document.createDocumentFragment();
       for (var l = 0; l < trolleyGoods.length; l++) {
@@ -271,8 +265,8 @@ allTrolleyCards.forEach(function(elt, i) {
 
   var increaseOrderCardAmount = function () {
     if (amountInGoodsCard > 0) {
-      elt.orderedAmount ++;
-      amountInGoodsCard --;
+      elt.orderedAmount++;
+      amountInGoodsCard--;
     }
     var trolleyFragment = document.createDocumentFragment();
     for (var l = 0; l < trolleyGoods.length; l++) {
@@ -389,7 +383,7 @@ var chooseDeliverStore = function () {
   deliverRoom.required = false;
 };
 
-var chooseDeliverCourier = function() {
+var chooseDeliverCourier = function () {
   deliverCourierWrap.classList.remove('visually-hidden');
   deliverStoreWrap.classList.add('visually-hidden');
   deliverStreet.disabled = false;
