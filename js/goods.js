@@ -4,25 +4,23 @@ var GOOD_NAME = ['Чесночные сливки', 'Огуречный педа
 var IMAGES_PATH = 'img/cards/';
 var IMAGE_ADDRESS = ['gum-cedar.jpg', 'gum-chile.jpg', 'gum-eggplant.jpg', 'gum-mustard.jpg', 'gum-portwine.jpg', 'gum-wasabi.jpg', 'ice-cucumber.jpg', 'ice-eggplant.jpg', 'ice-garlic.jpg', 'ice-italian.jpg', 'ice-mushroom.jpg', 'ice-pig.jpg', 'marmalade-beer.jpg', 'marmalade-caviar.jpg', 'marmalade-corn.jpg', 'marmalade-new-year.jpg', 'marmalade-sour.jpg', 'marshmallow-bacon.jpg', 'marshmallow-beer.jpg', 'marshmallow-shrimp.jpg', 'marshmallow-spicy.jpg', 'marshmallow-wine.jpg', 'soda-bacon.jpg', 'soda-celery.jpg', 'soda-cob.jpg', 'soda-garlic.jpg', 'soda-peanut-grapes.jpg', 'soda-russian.jpg'];
 var GOODS_AMOUNT = 26;
-var TROLLEY_GOODS_AMOUNT = 3;
+var TROLLEY_GOODS_AMOUNT = 0;
 // var ESC_KEYCODE = 27;
-// var ENTER_KEYCODE = 13;
+var ENTER_KEYCODE = 13;
 var MAP_PATH = 'img/map/';
 var MAP_ADDRESS = ['academicheskaya.jpg', 'vasileostrovskaya.jpg', 'rechka.jpg', 'petrogradskaya.jpg', 'proletarskaya.jpg', 'vostaniya.jpg', 'prosvesheniya.jpg', 'frunzenskaya.jpg', 'chernishevskaya.jpg', 'tehinstitute.jpg'];
+var MAX_RANGE = 235;
 
 var catalogCards = document.querySelector('.catalog__cards');
 catalogCards.classList.remove('catalog__cards--load');
-// var catalogLoad = document.querySelector('.catalog__load');
-// catalogLoad.classList.add('visually-hidden');
+var catalogLoad = document.querySelector('.catalog__load');
+catalogLoad.classList.add('visually-hidden');
 var catalogCard = document.querySelector('#card').content.querySelector('.catalog__card');
 var goodsCard = document.querySelector('#card-order').content.querySelector('.goods_card');
 var goodsCards = document.querySelector('.goods__cards');
 goodsCards.classList.remove('goods__cards--empty');
-// var goodsCardEmpty = document.querySelector('.goods__card-empty');
-// goodsCardEmpty.classList.add('visually-hidden');
 
 var paymentCardWrap = document.querySelector('.payment__card-wrap');
-// var cardN = paymentCardWrap.querySelector('input[name = "card-number"]').value;
 var cardNumber = paymentCardWrap.querySelector('input[name = "card-number"]');
 var paymentCard = document.querySelector('#payment__card');
 var paymentCash = document.querySelector('#payment__cash');
@@ -116,9 +114,10 @@ var renderCard = function (good) {
   var goodElement = catalogCard.cloneNode(true);
   goodElement.classList.remove('card--in-stock');
   goodElement.classList.add(amountClass);
+  goodElement.setAttribute('data-index', k);
   goodElement.querySelector('.card__title').textContent = good.name;
   goodElement.querySelector('.card__img').src = good.picture;
-  goodElement.querySelector('.card__price').innerHTML = good.price + '<span class="card__currency"> ₽ </span><span class="card__weight">/ ' + good.price + ' Г</span>';
+  goodElement.querySelector('.card__price').innerHTML = good.price + '<span class="card__currency"> ₽ </span>' + '<span class="card__weight">/ ' + good.weight + ' Г</span>';
   goodElement.querySelector('.stars__rating').textContent = good.rating.value;
   var starsRating = goodElement.querySelector('.stars__rating');
   starsRating.classList.remove('stars__rating--five');
@@ -133,23 +132,21 @@ var fragment = document.createDocumentFragment();
 for (var k = 0; k < goods.length; k++) {
   fragment.appendChild(renderCard(goods[k]));
 }
-// catalogCards.appendChild(fragment);
+catalogCards.appendChild(fragment);
 
-/*
 var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
-var onCardFavoriteBtnClick = function () {
-  cardFavoriteBtn.classList.add('.card__btn-favorite--selected');
-};
-cardFavoriteBtn.addEventListener('click', onCardFavoriteBtnClick);
+var cardBtn = catalogCards.querySelectorAll('.card__btn');
+var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
+var mainHeaderBasket = document.querySelector('.main-header__basket');
+var goodsCardEmpty = document.querySelector('.goods__card-empty');
 
-for (var p = 0; p < catalogCards.length; p++) {
-  var cardBtn = catalogCards[p].querySelectorAll('.card__btn');
-  var onCardBtnClick = function () {
-    goodsCards.appendChild(catalogCards[p]);
+cardFavoriteBtn.forEach(function(element) {
+  var onCardFavoriteBtnClick = function (evt) {
+    evt.preventDefault();
+    element.classList.toggle('.card__btn-favorite--selected');
   };
-  cardBtn.addEventListener('click', onCardBtnClick);
-}
-*/
+  element.addEventListener('click', onCardFavoriteBtnClick);
+});
 
 var getTrolleyDescription = function (trolleyDescriptionNumber) {
   var trolleyDescriptions = [];
@@ -157,26 +154,167 @@ var getTrolleyDescription = function (trolleyDescriptionNumber) {
     trolleyDescriptions.push({
       name: GOOD_NAME[j],
       picture: IMAGES_PATH + IMAGE_ADDRESS[j],
-      price: getRandomNumber(10, 150) * 10
+      price: getRandomNumber(10, 150) * 10,
+      orderedAmount: 0
     });
   }
   return trolleyDescriptions;
 };
-var trolleyGoods = getTrolleyDescription(TROLLEY_GOODS_AMOUNT);
+var trolleyGoods = getTrolleyDescription();
 
 var renderTrolleyCard = function (trolleyGood) {
   var trolleyGoodElement = goodsCard.cloneNode(true);
   trolleyGoodElement.querySelector('.card-order__title').textContent = trolleyGood.name;
   trolleyGoodElement.querySelector('.card-order__img').src = trolleyGood.picture;
   trolleyGoodElement.querySelector('.card-order__price').textContent = trolleyGood.price + ' ₽';
+  trolleyGoodElement.querySelector('.card-order__count').value = trolleyGood.orderedAmount;
   return trolleyGoodElement;
 };
 
-var trolleyFragment = document.createDocumentFragment();
-for (var l = 0; l < trolleyGoods.length; l++) {
-  trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
-}
-// goodsCards.appendChild(trolleyFragment);
+allCatalogCards.forEach(function(elt, i) {
+  var cardBtn = elt.querySelector('.card__btn');
+  var onCardBtnClick = function (evt) {
+    evt.preventDefault();
+    var getData = function () {
+      var eltData = elt.getAttribute('data-index');
+      window.eltData = eltData;
+    }();
+    goodsCardEmpty.classList.add('visually-hidden');
+    TROLLEY_GOODS_AMOUNT += 1;
+    var chosenCard = goods[window.eltData];
+    if (chosenCard.amount > 0) {
+      chosenCard.amount -= 1;
+      var chCard = {};
+      Object.assign(chCard, chosenCard);
+      delete chCard.amount;
+      delete chCard.weight;
+      delete chCard.rating;
+      delete chCard.nutritionFacts;
+      chCard.orderedAmount = 1;
+      var hasCard = false;
+      for (var i = 0; i < trolleyGoods.length; i++) {
+        if (trolleyGoods[i].name === chCard.name) {
+          trolleyGoods[i].orderedAmount ++;
+          chCard.orderedAmount = trolleyGoods[i].orderedAmount;
+          hasCard = true;
+        } 
+      }
+      if(!hasCard) {
+        trolleyGoods.push(chCard);
+      }
+      var trolleyFragment = document.createDocumentFragment();
+      for (var l = 0; l < trolleyGoods.length; l++) {
+        trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
+      }
+      goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+      goodsCards.appendChild(trolleyFragment);
+    }
+    if (trolleyGoods.length > 0) {
+      var basketGoods = '';
+      if (trolleyGoods.length === 1) {
+        basketGoods = ' товар';
+      } else if (trolleyGoods.length > 4) {
+        basketGoods = ' товаров';
+      } else if (trolleyGoods.length === 2 || 3 || 4) {
+        basketGoods = ' товара';
+      }
+      mainHeaderBasket.textContent = 'В корзине ' + trolleyGoods.length + basketGoods;
+    }
+  };
+  cardBtn.addEventListener('click', onCardBtnClick);
+});
+
+var allTrolleyCards = goodsCards.querySelectorAll('.card-order');
+
+allTrolleyCards.forEach(function(elt, i) {
+  var orderCardClose = elt.querySelector('.card-order__close');
+  var orderCardDecrease = elt.querySelector('.card-order__btn--decrease');
+  var orderCardIncrease = elt.querySelector('.card-order__btn--increase');
+
+  for (var j = 0; j < allCatalogCards.length; j++) {
+    if (elt.name === allCatalogCards[j].name) {
+      var amountInGoodsCard = allCatalogCards[j].amount;
+    }
+  }
+
+  var deleteCard = function () {
+    allTrolleyCards.removeChild(elt);
+    trolleyGoods.removeChild(elt);
+    amountInGoodsCard += elt.orderedAmount;
+    if (allTrolleyCards.length > 0) {
+      var trolleyFragment = document.createDocumentFragment();
+      for (var l = 0; l < trolleyGoods.length; l++) {
+        trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
+      }
+      goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+      goodsCards.appendChild(trolleyFragment);
+    } else {
+      goodsCardEmpty.classList.remove('visually-hidden');
+    }
+  };
+
+  var decreaseOrderCardAmount = function () {
+    if (elt.orderedAmount <= 0) {
+      deleteCard();
+    } 
+    if (allTrolleyCards.length > 0) {
+      var trolleyFragment = document.createDocumentFragment();
+      for (var l = 0; l < trolleyGoods.length; l++) {
+        trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
+      }
+      goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+      goodsCards.appendChild(trolleyFragment);
+    } else {
+      goodsCardEmpty.classList.remove('visually-hidden');
+    }
+  };
+
+  var increaseOrderCardAmount = function () {
+    if (amountInGoodsCard > 0) {
+      elt.orderedAmount ++;
+      amountInGoodsCard --;
+    }
+    var trolleyFragment = document.createDocumentFragment();
+    for (var l = 0; l < trolleyGoods.length; l++) {
+      trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
+    }
+    goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+    goodsCards.appendChild(trolleyFragment);
+  };
+
+  orderCardClose.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    deleteCard();
+  });
+
+  orderCardClose.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      deleteCard();
+    }
+  });
+
+  orderCardDecrease.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    decreaseOrderCardAmount();
+  });
+
+  orderCardDecrease.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      decreaseOrderCardAmount();
+    }
+  });
+
+  orderCardIncrease.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    increaseOrderCardAmount();
+  });
+
+  orderCardIncrease.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      increaseOrderCardAmount();
+    }
+  });
+});
 
 var luhnAlgorithm = function () {
   var arr = cardNumber.value.split('');
@@ -192,7 +330,7 @@ var luhnAlgorithm = function () {
   return digitSum % 10 === 0;
 };
 
-paymentCash.addEventListener('click', function () {
+var choosePaymentCash = function () {
   paymentCashWrap.classList.remove('visually-hidden');
   paymentCardWrap.classList.add('visually-hidden');
   cardNumber.disabled = true;
@@ -203,9 +341,9 @@ paymentCash.addEventListener('click', function () {
   cardDate.required = false;
   cardCvc.required = false;
   cardholder.required = false;
-});
+};
 
-paymentCard.addEventListener('click', function () {
+var choosePaymentCard = function () {
   paymentCashWrap.classList.add('visually-hidden');
   paymentCardWrap.classList.remove('visually-hidden');
   cardNumber.disabled = false;
@@ -216,9 +354,31 @@ paymentCard.addEventListener('click', function () {
   cardDate.required = true;
   cardCvc.required = true;
   cardholder.required = true;
+};
+
+paymentCash.addEventListener('click', function () {
+  choosePaymentCash();
 });
 
-var deliverStoreClick = function () {
+paymentCash.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    choosePaymentCash();
+  }
+});
+
+paymentCard.addEventListener('click', function () {
+  choosePaymentCard();
+});
+
+paymentCard.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    choosePaymentCard();
+  }
+});
+
+var chooseDeliverStore = function () {
+  deliverStoreWrap.classList.remove('visually-hidden');
+  deliverCourierWrap.classList.add('visually-hidden');
   deliverStreet.disabled = true;
   deliverHouse.disabled = true;
   deliverFloor.disabled = true;
@@ -227,15 +387,9 @@ var deliverStoreClick = function () {
   deliverStreet.required = false;
   deliverHouse.required = false;
   deliverRoom.required = false;
-}();
+};
 
-deliverStore.addEventListener('click', function () {
-  deliverStoreWrap.classList.remove('visually-hidden');
-  deliverCourierWrap.classList.add('visually-hidden');
-  deliverStoreClick();
-});
-
-deliverCourier.addEventListener('click', function () {
+var chooseDeliverCourier = function() {
   deliverCourierWrap.classList.remove('visually-hidden');
   deliverStoreWrap.classList.add('visually-hidden');
   deliverStreet.disabled = false;
@@ -246,6 +400,26 @@ deliverCourier.addEventListener('click', function () {
   deliverStreet.required = true;
   deliverHouse.required = true;
   deliverRoom.required = true;
+};
+
+deliverStore.addEventListener('click', function () {
+  chooseDeliverStore();
+});
+
+deliverStore.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    chooseDeliverStore();
+  }
+});
+
+deliverCourier.addEventListener('click', function () {
+  chooseDeliverCourier();
+});
+
+deliverCourier.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    chooseDeliverCourier();
+  }
 });
 
 orderCreation.addEventListener('click', function () {
@@ -364,3 +538,78 @@ if () {
   });
 }
 */
+
+var catalogFilterRange = document.querySelector('.range__filter');
+var leftRange = catalogFilterRange.querySelector('.range__btn--left');
+var rightRange = catalogFilterRange.querySelector('.range__btn--right');
+var rangePriceMin = document.querySelector('.range__price--min');
+var rangePriceMax = document.querySelector('.range__price--max');
+rangePriceMin.textContent = 0;
+rangePriceMax.textContent = 100;
+// var minRange = 0 + 'px';
+
+var onLeftRangeMouseDown = function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.clientX,
+  };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+    };
+
+    leftRange.style.left = (leftRange.offsetLeft - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    catalogFilterRange.removeEventListener('mousemove', onMouseMove);
+    catalogFilterRange.removeEventListener('mouseup', onMouseUp);
+    var priceMin = Math.floor(parseInt(leftRange.style.left, 10) / MAX_RANGE * 100);
+    rangePriceMin.textContent = priceMin;
+  };
+
+  catalogFilterRange.addEventListener('mousemove', onMouseMove);
+  catalogFilterRange.addEventListener('mouseup', onMouseUp);
+};
+leftRange.addEventListener('mousedown', onLeftRangeMouseDown);
+
+var onRightRangeMouseDown = function (evt) {
+  evt.preventDefault();
+
+  var startCoords = {
+    x: evt.clientX,
+  };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+    };
+
+    rightRange.style.left = (rightRange.offsetLeft - shift.x) + 'px';
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    catalogFilterRange.removeEventListener('mousemove', onMouseMove);
+    catalogFilterRange.removeEventListener('mouseup', onMouseUp);
+    var priceMax = Math.floor(parseInt(rightRange.style.left, 10) / MAX_RANGE * 100);
+    rangePriceMax.textContent = priceMax;
+  };
+
+  catalogFilterRange.addEventListener('mousemove', onMouseMove);
+  catalogFilterRange.addEventListener('mouseup', onMouseUp);
+};
+rightRange.addEventListener('mousedown', onRightRangeMouseDown);
