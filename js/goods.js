@@ -186,10 +186,10 @@ allCatalogCards.forEach(function (elt) {
       delete chCard.nutritionFacts;
       chCard.orderedAmount = 1;
       var hasCard = false;
-      for (var k = 0; k < trolleyGoods.length; k++) {
-        if (trolleyGoods[k].name === chCard.name) {
-          trolleyGoods[k].orderedAmount++;
-          chCard.orderedAmount = trolleyGoods[k].orderedAmount;
+      for (var z = 0; z < trolleyGoods.length; z++) {
+        if (trolleyGoods[z].name === chCard.name) {
+          trolleyGoods[z].orderedAmount++;
+          chCard.orderedAmount = trolleyGoods[z].orderedAmount;
           hasCard = true;
         }
       }
