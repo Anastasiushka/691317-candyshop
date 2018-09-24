@@ -645,7 +645,7 @@ var onRightRangeMouseDown = function (evt) {
     var rightRangePos = parseInt(rightRange.style.left, 10);
 
     rangeFillLine.style.right = catalogFilterRange.offsetWidth - rightRangePos + 'px';
-    
+
     if (rightRangePos > RANGE_WIDTH) {
       rightRange.style.left = RANGE_WIDTH + 'px';
     } else if (rightRangePos < leftRange.offsetLeft) {
