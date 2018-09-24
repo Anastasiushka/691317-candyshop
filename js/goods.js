@@ -159,8 +159,6 @@ var renderTrolleyCard = function (trolleyGood) {
   var orderCardDecrease = trolleyGoodElement.querySelector('.card-order__btn--decrease');
   var orderCardIncrease = trolleyGoodElement.querySelector('.card-order__btn--increase');
 
-  var allTrolleyCards = goodsCards.querySelectorAll('.card-order');
-
   orderCardClose.addEventListener('click', function (evt) {
     evt.preventDefault();
     deleteCard(trolleyGoodElement);
