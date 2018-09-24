@@ -256,13 +256,13 @@ var updateBasketGoodsCount = function () {
 };
 
 var getCatalogDescCard = function (name) {
-  return goods.find(function(currentGood) {
+  return goods.find(function (currentGood) {
     return name === currentGood.name;
   });
 };
 
 var getTrolleyCard = function (name) {
-  return trolleyGoods.find(function(currentGood) {
+  return trolleyGoods.find(function (currentGood) {
     return name === currentGood.name;
   });
 };
@@ -542,7 +542,6 @@ var rangePriceMax = document.querySelector('.range__price--max');
 rangePriceMin.textContent = 0;
 rangePriceMax.textContent = 100;
 var rangeFillLine = document.querySelector('.range__fill-line');
-console.log(rangeFillLine.style.left);
 
 var priceMx = Math.floor((rightRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
 var priceMn = Math.floor((leftRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
@@ -560,7 +559,7 @@ var onLeftRangeMouseDown = function (evt) {
     var shift = startCoords - moveEvt.clientX;
     startCoords = moveEvt.clientX;
     leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
-    var leftRangePos = parseInt(leftRange.style.left);
+    var leftRangePos = parseInt(leftRange.style.left, 10);
 
     if (leftRangePos < 0) {
       leftRange.style.left = '0px';
@@ -599,10 +598,10 @@ var onRightRangeMouseDown = function (evt) {
     var shift = startCoords - moveEvt.clientX;
     startCoords = moveEvt.clientX;
     rightRange.style.left = (rightRange.offsetLeft - shift) + 'px';
-    var rightRangePos = parseInt(rightRange.style.left);
+    var rightRangePos = parseInt(rightRange.style.left, 10);
 
     if (rightRangePos > RANGE_WIDTH) {
-      rightRange.style.left = RANGE_WIDTH +'px';
+      rightRange.style.left = RANGE_WIDTH + 'px';
     } else if (rightRangePos < leftRange.offsetLeft) {
       rightRange.style.left = leftRange.offsetLeft + 'px';
     }
