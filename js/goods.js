@@ -8,7 +8,7 @@ var GOODS_AMOUNT = 26;
 var ENTER_KEYCODE = 13;
 var MAP_PATH = 'img/map/';
 var MAP_ADDRESS = ['academicheskaya.jpg', 'vasileostrovskaya.jpg', 'rechka.jpg', 'petrogradskaya.jpg', 'proletarskaya.jpg', 'vostaniya.jpg', 'prosvesheniya.jpg', 'frunzenskaya.jpg', 'chernishevskaya.jpg', 'tehinstitute.jpg'];
-var MAX_RANGE = 235;
+
 
 var catalogCards = document.querySelector('.catalog__cards');
 catalogCards.classList.remove('catalog__cards--load');
@@ -69,7 +69,7 @@ for (var i = 1; i <= consistI; i++) {
 
 var getDescription = function (descriptionNumber) {
   var descriptions = [];
-  for (var j = 1; j <= descriptionNumber; j++) {
+  for (var j = 0; j < descriptionNumber; j++) {
     descriptions.push({
       name: GOOD_NAME[j],
       picture: IMAGES_PATH + IMAGE_ADDRESS[j],
@@ -148,7 +148,7 @@ cardFavoriteBtn.forEach(function (element) {
 
 var getTrolleyDescription = function (trolleyDescriptionNumber) {
   var trolleyDescriptions = [];
-  for (var j = 1; j <= trolleyDescriptionNumber; j++) {
+  for (var j = 0; j < trolleyDescriptionNumber; j++) {
     trolleyDescriptions.push({
       name: GOOD_NAME[j],
       picture: IMAGES_PATH + IMAGE_ADDRESS[j],
@@ -162,10 +162,52 @@ var trolleyGoods = getTrolleyDescription();
 
 var renderTrolleyCard = function (trolleyGood) {
   var trolleyGoodElement = goodsCard.cloneNode(true);
+  trolleyGoodElement.name = trolleyGood.name;
   trolleyGoodElement.querySelector('.card-order__title').textContent = trolleyGood.name;
   trolleyGoodElement.querySelector('.card-order__img').src = trolleyGood.picture;
   trolleyGoodElement.querySelector('.card-order__price').textContent = trolleyGood.price + ' ₽';
   trolleyGoodElement.querySelector('.card-order__count').value = trolleyGood.orderedAmount;
+
+  var orderCardClose = trolleyGoodElement.querySelector('.card-order__close');
+  var orderCardDecrease = trolleyGoodElement.querySelector('.card-order__btn--decrease');
+  var orderCardIncrease = trolleyGoodElement.querySelector('.card-order__btn--increase');
+
+  var allTrolleyCards = goodsCards.querySelectorAll('.card-order');
+  window.allTrolleyCards = allTrolleyCards;
+
+  orderCardClose.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    deleteCard(trolleyGoodElement);
+  });
+
+  orderCardClose.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      deleteCard(trolleyGoodElement);
+    }
+  });
+
+  orderCardDecrease.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    decreaseOrderCardAmount(trolleyGoodElement);
+  });
+
+  orderCardDecrease.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      decreaseOrderCardAmount(trolleyGoodElement);
+    }
+  });
+
+  orderCardIncrease.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    increaseOrderCardAmount(trolleyGoodElement);
+  });
+
+  orderCardIncrease.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      increaseOrderCardAmount(trolleyGoodElement);
+    }
+  });
+  
   return trolleyGoodElement;
 };
 
@@ -185,130 +227,106 @@ allCatalogCards.forEach(function (elt) {
       delete chCard.rating;
       delete chCard.nutritionFacts;
       chCard.orderedAmount = 1;
-      var hasCard = false;
-      for (var z = 0; z < trolleyGoods.length; z++) {
-        if (trolleyGoods[z].name === chCard.name) {
-          trolleyGoods[z].orderedAmount++;
-          chCard.orderedAmount = trolleyGoods[z].orderedAmount;
-          hasCard = true;
-        }
-      }
-      if (!hasCard) {
+
+      var trolleyCard = getTrolleyCard(chCard.name);
+      if (trolleyCard) {
+        trolleyCard.orderedAmount++;
+        chCard.orderedAmount = trolleyCard.orderedAmount;
+      } else {
         trolleyGoods.push(chCard);
       }
-      var trolleyFragment = document.createDocumentFragment();
-      for (var l = 0; l < trolleyGoods.length; l++) {
-        trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
-      }
-      goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
-      goodsCards.appendChild(trolleyFragment);
+      renderTrolleyFragment ();
     }
-    if (trolleyGoods.length > 0) {
-      var basketGoods = '';
-      if (trolleyGoods.length === 1) {
-        basketGoods = ' товар';
-      } else if (trolleyGoods.length > 4) {
-        basketGoods = ' товаров';
-      } else if (trolleyGoods.length === 2 || 3 || 4) {
-        basketGoods = ' товара';
-      }
-      mainHeaderBasket.textContent = 'В корзине ' + trolleyGoods.length + basketGoods;
-    }
+    updateBasketGoodsCount();
   };
   cardBtn.addEventListener('click', onCardBtnClick);
 });
 
-var allTrolleyCards = goodsCards.querySelectorAll('.card-order');
+var renderTrolleyFragment = function () {
+  var trolleyFragment = document.createDocumentFragment();
+  for (var l = 0; l < trolleyGoods.length; l++) {
+    trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
+  }
+  goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+  goodsCards.appendChild(trolleyFragment);
+};
 
-allTrolleyCards.forEach(function (elt) {
-  var orderCardClose = elt.querySelector('.card-order__close');
-  var orderCardDecrease = elt.querySelector('.card-order__btn--decrease');
-  var orderCardIncrease = elt.querySelector('.card-order__btn--increase');
+var updateBasketGoodsCount = function () {
+  if (trolleyGoods.length > 0) {
+    var basketGoods = '';
+    if (trolleyGoods.length < 2) {
+      basketGoods = ' товар';
+    } else if (trolleyGoods.length < 5) {
+      basketGoods = ' товара';
+    } else {
+      basketGoods = ' товаров';
+    }
+    mainHeaderBasket.textContent = 'В корзине ' + trolleyGoods.length + basketGoods;
+  } else {
+    mainHeaderBasket.textContent = 'В корзине ничего нет';
+    goodsCards.innerHTML = '<div class="goods__card-empty"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+  }
+};
 
-  for (var j = 0; j < allCatalogCards.length; j++) {
-    if (elt.name === allCatalogCards[j].name) {
-      var amountInGoodsCard = allCatalogCards[j].amount;
+var getCatalogDescCard = function (name) {
+  for (var j = 0; j < goods.length; j++) {
+    if (name === goods[j].name) {
+      return goods[j];
     }
   }
+};
 
-  var deleteCard = function () {
-    allTrolleyCards.removeChild(elt);
-    trolleyGoods.removeChild(elt);
-    amountInGoodsCard += elt.orderedAmount;
-    if (allTrolleyCards.length > 0) {
-      var trolleyFragment = document.createDocumentFragment();
-      for (var l = 0; l < trolleyGoods.length; l++) {
-        trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
-      }
-      goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
-      goodsCards.appendChild(trolleyFragment);
-    } else {
-      goodsCardEmpty.classList.remove('visually-hidden');
+var getTrolleyCard = function (name) {
+  for (var j = 0; j < trolleyGoods.length; j++) {
+    if (name === trolleyGoods[j].name) {
+      return trolleyGoods[j];
     }
-  };
+  }
+};
 
-  var decreaseOrderCardAmount = function () {
-    if (elt.orderedAmount <= 0) {
-      deleteCard();
+var deleteCard = function (element) {
+  var catalogCard = getCatalogDescCard(element.name);
+  var trolleyCard = getTrolleyCard(element.name);
+  catalogCard.amount += trolleyCard.orderedAmount;
+
+  goodsCards.removeChild(element);
+  for (var i = 0; i < trolleyGoods.length; i++) {
+    if (element.name === trolleyGoods[i].name) {
+      trolleyGoods.splice(i, 1);
     }
-    if (allTrolleyCards.length > 0) {
-      var trolleyFragment = document.createDocumentFragment();
-      for (var l = 0; l < trolleyGoods.length; l++) {
-        trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
-      }
-      goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
-      goodsCards.appendChild(trolleyFragment);
-    } else {
-      goodsCardEmpty.classList.remove('visually-hidden');
-    }
-  };
+  }
+  updateBasketGoodsCount();
 
-  var increaseOrderCardAmount = function () {
-    if (amountInGoodsCard > 0) {
-      elt.orderedAmount++;
-      amountInGoodsCard--;
-    }
-    var trolleyFragment = document.createDocumentFragment();
-    for (var l = 0; l < trolleyGoods.length; l++) {
-      trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
-    }
-    goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
-    goodsCards.appendChild(trolleyFragment);
-  };
+  if (trolleyGoods.length > 0) {
+    renderTrolleyFragment();
+  }
+};
 
-  orderCardClose.addEventListener('click', function (evt) {
-    evt.preventDefault();
-    deleteCard();
-  });
+var decreaseOrderCardAmount = function (element) {
+  var catalogCard = getCatalogDescCard(element.name);
+  var trolleyCard = getTrolleyCard(element.name);
 
-  orderCardClose.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      deleteCard();
-    }
-  });
+  catalogCard.amount++;
+  trolleyCard.orderedAmount--;
 
-  orderCardDecrease.addEventListener('click', function (evt) {
-    evt.preventDefault();
-    decreaseOrderCardAmount();
-  });
+  if (trolleyCard.orderedAmount <= 0) {
+    deleteCard(element);
+  }
+  if (trolleyGoods.length > 0) {
+    renderTrolleyFragment();
+  }
+};
 
-  orderCardDecrease.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      decreaseOrderCardAmount();
-    }
-  });
+var increaseOrderCardAmount = function (element) {
+  var catalogCard = getCatalogDescCard(element.name);
+  var trolleyCard = getTrolleyCard(element.name);
 
-  orderCardIncrease.addEventListener('click', function (evt) {
-    evt.preventDefault();
-    increaseOrderCardAmount();
-  });
-
-  orderCardIncrease.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      increaseOrderCardAmount();
-    }
-  });
-});
+  if (catalogCard.amount > 0) {
+    catalogCard.amount--;
+    trolleyCard.orderedAmount++;
+  }
+  renderTrolleyFragment();
+};
 
 var luhnAlgorithm = function () {
   var arr = cardNumber.value.split('');
@@ -540,33 +558,30 @@ var rangePriceMin = document.querySelector('.range__price--min');
 var rangePriceMax = document.querySelector('.range__price--max');
 rangePriceMin.textContent = 0;
 rangePriceMax.textContent = 100;
-// var minRange = 0 + 'px';
+var RANGE_BTN_WIDTH = 10;
+var RANGE_WIDTH = 245;
+var MAX_RANGE = 255 + 'px';
+var MIN_RANGE = 10 + 'px';
 
 var onLeftRangeMouseDown = function (evt) {
   evt.preventDefault();
-
-  var startCoords = {
-    x: evt.clientX,
-  };
+  var startCoords = evt.clientX;
 
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
-    var shift = {
-      x: startCoords.x - moveEvt.clientX,
-    };
-
-    startCoords = {
-      x: moveEvt.clientX,
-    };
-
-    leftRange.style.left = (leftRange.offsetLeft - shift.x) + 'px';
+    if (moveEvt.clientX > parseInt(MIN_RANGE, 10)) {
+      var shift = startCoords - moveEvt.clientX;
+      startCoords = moveEvt.clientX;
+      leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
+    }
+    console.log(moveEvt.clientX);
   };
 
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
     catalogFilterRange.removeEventListener('mousemove', onMouseMove);
     catalogFilterRange.removeEventListener('mouseup', onMouseUp);
-    var priceMin = Math.floor(parseInt(leftRange.style.left, 10) / MAX_RANGE * 100);
+    var priceMin = Math.floor((parseInt(leftRange.style.left, 10) + RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
     rangePriceMin.textContent = priceMin;
   };
 
@@ -577,29 +592,20 @@ leftRange.addEventListener('mousedown', onLeftRangeMouseDown);
 
 var onRightRangeMouseDown = function (evt) {
   evt.preventDefault();
-
-  var startCoords = {
-    x: evt.clientX,
-  };
+  var startCoords = evt.clientX;
 
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
-    var shift = {
-      x: startCoords.x - moveEvt.clientX,
-    };
-
-    startCoords = {
-      x: moveEvt.clientX,
-    };
-
-    rightRange.style.left = (rightRange.offsetLeft - shift.x) + 'px';
+    var shift = startCoords - moveEvt.clientX;
+    startCoords = moveEvt.clientX;
+    rightRange.style.left = (rightRange.offsetLeft - shift) + 'px';
   };
 
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
     catalogFilterRange.removeEventListener('mousemove', onMouseMove);
     catalogFilterRange.removeEventListener('mouseup', onMouseUp);
-    var priceMax = Math.floor(parseInt(rightRange.style.left, 10) / MAX_RANGE * 100);
+    var priceMax = Math.floor((parseInt(rightRange.style.left, 10) + RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
     rangePriceMax.textContent = priceMax;
   };
 
