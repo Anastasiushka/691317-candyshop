@@ -160,7 +160,6 @@ var renderTrolleyCard = function (trolleyGood) {
   var orderCardIncrease = trolleyGoodElement.querySelector('.card-order__btn--increase');
 
   var allTrolleyCards = goodsCards.querySelectorAll('.card-order');
-  window.allTrolleyCards = allTrolleyCards;
 
   orderCardClose.addEventListener('click', function (evt) {
     evt.preventDefault();
@@ -198,6 +197,17 @@ var renderTrolleyCard = function (trolleyGood) {
   return trolleyGoodElement;
 };
 
+var createTrolleyCard = function (chosenCard) {
+  var chCard = {};
+  Object.assign(chCard, chosenCard);
+  delete chCard.amount;
+  delete chCard.weight;
+  delete chCard.rating;
+  delete chCard.nutritionFacts;
+  chCard.orderedAmount = 1;
+  return chCard;
+};
+
 allCatalogCards.forEach(function (elt) {
   var cardBtn = elt.querySelector('.card__btn');
   var onCardBtnClick = function (evt) {
@@ -207,20 +217,11 @@ allCatalogCards.forEach(function (elt) {
     var chosenCard = goods[eltData];
     if (chosenCard.amount > 0) {
       chosenCard.amount -= 1;
-      var chCard = {};
-      Object.assign(chCard, chosenCard);
-      delete chCard.amount;
-      delete chCard.weight;
-      delete chCard.rating;
-      delete chCard.nutritionFacts;
-      chCard.orderedAmount = 1;
-
-      var trolleyCard = getTrolleyCard(chCard.name);
+      var trolleyCard = getTrolleyCard(chosenCard.name);
       if (trolleyCard) {
         trolleyCard.orderedAmount++;
-        chCard.orderedAmount = trolleyCard.orderedAmount;
       } else {
-        trolleyGoods.push(chCard);
+        trolleyGoods.push(createTrolleyCard(chosenCard));
       }
       renderTrolleyFragment();
     }
@@ -258,17 +259,19 @@ var updateBasketGoodsCount = function () {
 var getCatalogDescCard = function (name) {
   for (var j = 0; j < goods.length; j++) {
     if (name === goods[j].name) {
+      return goods[j];
     }
   }
-  return goods[j];
+  return undefined;
 };
 
 var getTrolleyCard = function (name) {
   for (var j = 0; j < trolleyGoods.length; j++) {
     if (name === trolleyGoods[j].name) {
+      return trolleyGoods[j];
     }
   }
-  return trolleyGoods[j];
+  return undefined;
 };
 
 var deleteCard = function (element) {
