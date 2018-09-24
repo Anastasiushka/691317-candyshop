@@ -137,6 +137,7 @@ var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
 var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
 var mainHeaderBasket = document.querySelector('.main-header__basket');
 var goodsCardEmpty = document.querySelector('.goods__card-empty');
+var trolleyGoods = [];
 
 cardFavoriteBtn.forEach(function (element) {
   var onCardFavoriteBtnClick = function (evt) {
@@ -145,20 +146,6 @@ cardFavoriteBtn.forEach(function (element) {
   };
   element.addEventListener('click', onCardFavoriteBtnClick);
 });
-
-var getTrolleyDescription = function (trolleyDescriptionNumber) {
-  var trolleyDescriptions = [];
-  for (var j = 0; j < trolleyDescriptionNumber; j++) {
-    trolleyDescriptions.push({
-      name: GOOD_NAME[j],
-      picture: IMAGES_PATH + IMAGE_ADDRESS[j],
-      price: getRandomNumber(10, 150) * 10,
-      orderedAmount: 0
-    });
-  }
-  return trolleyDescriptions;
-};
-var trolleyGoods = getTrolleyDescription();
 
 var renderTrolleyCard = function (trolleyGood) {
   var trolleyGoodElement = goodsCard.cloneNode(true);
@@ -207,7 +194,7 @@ var renderTrolleyCard = function (trolleyGood) {
       increaseOrderCardAmount(trolleyGoodElement);
     }
   });
-  
+
   return trolleyGoodElement;
 };
 
@@ -235,7 +222,7 @@ allCatalogCards.forEach(function (elt) {
       } else {
         trolleyGoods.push(chCard);
       }
-      renderTrolleyFragment ();
+      renderTrolleyFragment();
     }
     updateBasketGoodsCount();
   };
@@ -271,28 +258,28 @@ var updateBasketGoodsCount = function () {
 var getCatalogDescCard = function (name) {
   for (var j = 0; j < goods.length; j++) {
     if (name === goods[j].name) {
-      return goods[j];
     }
   }
+  return goods[j];
 };
 
 var getTrolleyCard = function (name) {
   for (var j = 0; j < trolleyGoods.length; j++) {
     if (name === trolleyGoods[j].name) {
-      return trolleyGoods[j];
     }
   }
+  return trolleyGoods[j];
 };
 
 var deleteCard = function (element) {
-  var catalogCard = getCatalogDescCard(element.name);
+  var catalogDescCard = getCatalogDescCard(element.name);
   var trolleyCard = getTrolleyCard(element.name);
-  catalogCard.amount += trolleyCard.orderedAmount;
+  catalogDescCard.amount += trolleyCard.orderedAmount;
 
   goodsCards.removeChild(element);
-  for (var i = 0; i < trolleyGoods.length; i++) {
-    if (element.name === trolleyGoods[i].name) {
-      trolleyGoods.splice(i, 1);
+  for (var e = 0; e < trolleyGoods.length; e++) {
+    if (element.name === trolleyGoods[e].name) {
+      trolleyGoods.splice(e, 1);
     }
   }
   updateBasketGoodsCount();
@@ -303,10 +290,10 @@ var deleteCard = function (element) {
 };
 
 var decreaseOrderCardAmount = function (element) {
-  var catalogCard = getCatalogDescCard(element.name);
+  var catalogDescCard = getCatalogDescCard(element.name);
   var trolleyCard = getTrolleyCard(element.name);
 
-  catalogCard.amount++;
+  catalogDescCard.amount++;
   trolleyCard.orderedAmount--;
 
   if (trolleyCard.orderedAmount <= 0) {
@@ -318,11 +305,11 @@ var decreaseOrderCardAmount = function (element) {
 };
 
 var increaseOrderCardAmount = function (element) {
-  var catalogCard = getCatalogDescCard(element.name);
+  var catalogDescCard = getCatalogDescCard(element.name);
   var trolleyCard = getTrolleyCard(element.name);
 
-  if (catalogCard.amount > 0) {
-    catalogCard.amount--;
+  if (catalogDescCard.amount > 0) {
+    catalogDescCard.amount--;
     trolleyCard.orderedAmount++;
   }
   renderTrolleyFragment();
@@ -560,7 +547,7 @@ rangePriceMin.textContent = 0;
 rangePriceMax.textContent = 100;
 var RANGE_BTN_WIDTH = 10;
 var RANGE_WIDTH = 245;
-var MAX_RANGE = 255 + 'px';
+// var MAX_RANGE = 255 + 'px';
 var MIN_RANGE = 10 + 'px';
 
 var onLeftRangeMouseDown = function (evt) {
@@ -574,7 +561,6 @@ var onLeftRangeMouseDown = function (evt) {
       startCoords = moveEvt.clientX;
       leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
     }
-    console.log(moveEvt.clientX);
   };
 
   var onMouseUp = function (upEvt) {
