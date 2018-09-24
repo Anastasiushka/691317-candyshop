@@ -43,11 +43,11 @@ var storeAddressMap = document.querySelector('.deliver__store-map-img');
 // var orderCreationError = document.querySelector('.order-creation__error');
 // var modalCloseSuccess = orderCreationSuccess.querySelector('.modal__close');
 // var modalCloseError = orderCreationError.querySelector('.modal__close');
-// var buySubmitButton = document.querySelector('.buy__submit-btn');
-// var contactData = document.querySelector('.contact-data__inputs');
-// var contactDataName = contactData.querySelector('input[name = "name"]');
-// var contactDataTel = contactData.querySelector('input[name = "tel"]');
-// var contactDataEmail = contactData.querySelector('input[name = "email"]');
+var buySubmitButton = document.querySelector('.buy__submit-btn');
+var contactData = document.querySelector('.contact-data__inputs');
+var contactDataName = contactData.querySelector('input[name = "name"]');
+var contactDataTel = contactData.querySelector('input[name = "tel"]');
+var contactDataEmail = contactData.querySelector('input[name = "email"]');
 var paymentCardStatus = paymentCardWrap.querySelector('.payment__card-status');
 var orderCreation = document.querySelector('.buy').querySelector('form');
 
@@ -207,6 +207,42 @@ var createTrolleyCard = function (chosenCard) {
   return chCard;
 };
 
+var disableForm = function () {
+  cardNumber.disabled = true;
+  cardDate.disabled = true;
+  cardCvc.disabled = true;
+  cardholder.disabled = true;
+  contactDataName.disabled = true;
+  contactDataTel.disabled = true;
+  contactDataEmail.disabled = true;
+  deliverStreet.disabled = true;
+  deliverHouse.disabled = true;
+  deliverFloor.disabled = true;
+  deliverRoom.disabled = true;
+  deliverDescription.disabled = true;
+  buySubmitButton.disabled = true;
+};
+
+disableForm();
+
+var enableForm = function () {
+  cardNumber.disabled = false;
+  cardDate.disabled = false;
+  cardCvc.disabled = false;
+  cardholder.disabled = false;
+  contactDataName.disabled = false;
+  contactDataTel.disabled = false;
+  contactDataEmail.disabled = false;
+  if (deliverStoreWrap.classList.contains('visually-hidden')) {
+    deliverStreet.disabled = false;
+    deliverHouse.disabled = false;
+    deliverFloor.disabled = false;
+    deliverRoom.disabled = false;
+    deliverDescription.disabled = false;
+  }
+  buySubmitButton.disabled = false;
+};
+
 allCatalogCards.forEach(function (elt) {
   var cardBtn = elt.querySelector('.card__btn');
   var onCardBtnClick = function (evt) {
@@ -230,6 +266,7 @@ allCatalogCards.forEach(function (elt) {
 });
 
 var renderTrolleyFragment = function () {
+  enableForm();
   var trolleyFragment = document.createDocumentFragment();
   for (var l = 0; l < trolleyGoods.length; l++) {
     trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
@@ -252,6 +289,7 @@ var updateBasketGoodsCount = function () {
   } else {
     mainHeaderBasket.textContent = 'В корзине ничего нет';
     goodsCards.innerHTML = '<div class="goods__card-empty"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+    disableForm();
   }
 };
 
@@ -387,11 +425,13 @@ var chooseDeliverStore = function () {
 var chooseDeliverCourier = function () {
   deliverCourierWrap.classList.remove('visually-hidden');
   deliverStoreWrap.classList.add('visually-hidden');
-  deliverStreet.disabled = false;
-  deliverHouse.disabled = false;
-  deliverFloor.disabled = false;
-  deliverRoom.disabled = false;
-  deliverDescription.disabled = false;
+  if (trolleyGoods.length > 0) {
+    deliverStreet.disabled = false;
+    deliverHouse.disabled = false;
+    deliverFloor.disabled = false;
+    deliverRoom.disabled = false;
+    deliverDescription.disabled = false;
+  }
   deliverStreet.required = true;
   deliverHouse.required = true;
   deliverRoom.required = true;
@@ -541,7 +581,7 @@ var rangePriceMin = document.querySelector('.range__price--min');
 var rangePriceMax = document.querySelector('.range__price--max');
 rangePriceMin.textContent = 0;
 rangePriceMax.textContent = 100;
-// var rangeFillLine = document.querySelector('.range__fill-line');
+var rangeFillLine = document.querySelector('.range__fill-line');
 
 var priceMx = Math.floor((rightRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
 var priceMn = Math.floor((leftRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
@@ -556,10 +596,13 @@ var onLeftRangeMouseDown = function (evt) {
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
     dragged = true;
+
     var shift = startCoords - moveEvt.clientX;
     startCoords = moveEvt.clientX;
     leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
     var leftRangePos = parseInt(leftRange.style.left, 10);
+
+    rangeFillLine.style.left = leftRangePos + RANGE_BTN_WIDTH / 2 + 'px';
 
     if (leftRangePos < 0) {
       leftRange.style.left = '0px';
@@ -595,11 +638,14 @@ var onRightRangeMouseDown = function (evt) {
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
     dragged = true;
+
     var shift = startCoords - moveEvt.clientX;
     startCoords = moveEvt.clientX;
     rightRange.style.left = (rightRange.offsetLeft - shift) + 'px';
     var rightRangePos = parseInt(rightRange.style.left, 10);
 
+    rangeFillLine.style.right = catalogFilterRange.offsetWidth - rightRangePos + 'px';
+    
     if (rightRangePos > RANGE_WIDTH) {
       rightRange.style.left = RANGE_WIDTH + 'px';
     } else if (rightRangePos < leftRange.offsetLeft) {
