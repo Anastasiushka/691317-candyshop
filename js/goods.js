@@ -541,7 +541,7 @@ var rangePriceMin = document.querySelector('.range__price--min');
 var rangePriceMax = document.querySelector('.range__price--max');
 rangePriceMin.textContent = 0;
 rangePriceMax.textContent = 100;
-var rangeFillLine = document.querySelector('.range__fill-line');
+// var rangeFillLine = document.querySelector('.range__fill-line');
 
 var priceMx = Math.floor((rightRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
 var priceMn = Math.floor((leftRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
