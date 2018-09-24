@@ -4,25 +4,23 @@ var GOOD_NAME = ['Чесночные сливки', 'Огуречный педа
 var IMAGES_PATH = 'img/cards/';
 var IMAGE_ADDRESS = ['gum-cedar.jpg', 'gum-chile.jpg', 'gum-eggplant.jpg', 'gum-mustard.jpg', 'gum-portwine.jpg', 'gum-wasabi.jpg', 'ice-cucumber.jpg', 'ice-eggplant.jpg', 'ice-garlic.jpg', 'ice-italian.jpg', 'ice-mushroom.jpg', 'ice-pig.jpg', 'marmalade-beer.jpg', 'marmalade-caviar.jpg', 'marmalade-corn.jpg', 'marmalade-new-year.jpg', 'marmalade-sour.jpg', 'marshmallow-bacon.jpg', 'marshmallow-beer.jpg', 'marshmallow-shrimp.jpg', 'marshmallow-spicy.jpg', 'marshmallow-wine.jpg', 'soda-bacon.jpg', 'soda-celery.jpg', 'soda-cob.jpg', 'soda-garlic.jpg', 'soda-peanut-grapes.jpg', 'soda-russian.jpg'];
 var GOODS_AMOUNT = 26;
-var TROLLEY_GOODS_AMOUNT = 3;
 // var ESC_KEYCODE = 27;
-// var ENTER_KEYCODE = 13;
+var ENTER_KEYCODE = 13;
 var MAP_PATH = 'img/map/';
 var MAP_ADDRESS = ['academicheskaya.jpg', 'vasileostrovskaya.jpg', 'rechka.jpg', 'petrogradskaya.jpg', 'proletarskaya.jpg', 'vostaniya.jpg', 'prosvesheniya.jpg', 'frunzenskaya.jpg', 'chernishevskaya.jpg', 'tehinstitute.jpg'];
+var RANGE_BTN_WIDTH = 10;
+var RANGE_WIDTH = 245;
 
 var catalogCards = document.querySelector('.catalog__cards');
 catalogCards.classList.remove('catalog__cards--load');
-// var catalogLoad = document.querySelector('.catalog__load');
-// catalogLoad.classList.add('visually-hidden');
+var catalogLoad = document.querySelector('.catalog__load');
+catalogLoad.classList.add('visually-hidden');
 var catalogCard = document.querySelector('#card').content.querySelector('.catalog__card');
 var goodsCard = document.querySelector('#card-order').content.querySelector('.goods_card');
 var goodsCards = document.querySelector('.goods__cards');
 goodsCards.classList.remove('goods__cards--empty');
-// var goodsCardEmpty = document.querySelector('.goods__card-empty');
-// goodsCardEmpty.classList.add('visually-hidden');
 
 var paymentCardWrap = document.querySelector('.payment__card-wrap');
-// var cardN = paymentCardWrap.querySelector('input[name = "card-number"]').value;
 var cardNumber = paymentCardWrap.querySelector('input[name = "card-number"]');
 var paymentCard = document.querySelector('#payment__card');
 var paymentCash = document.querySelector('#payment__cash');
@@ -72,7 +70,7 @@ for (var i = 1; i <= consistI; i++) {
 
 var getDescription = function (descriptionNumber) {
   var descriptions = [];
-  for (var j = 1; j <= descriptionNumber; j++) {
+  for (var j = 0; j < descriptionNumber; j++) {
     descriptions.push({
       name: GOOD_NAME[j],
       picture: IMAGES_PATH + IMAGE_ADDRESS[j],
@@ -116,9 +114,10 @@ var renderCard = function (good) {
   var goodElement = catalogCard.cloneNode(true);
   goodElement.classList.remove('card--in-stock');
   goodElement.classList.add(amountClass);
+  goodElement.setAttribute('data-index', k);
   goodElement.querySelector('.card__title').textContent = good.name;
   goodElement.querySelector('.card__img').src = good.picture;
-  goodElement.querySelector('.card__price').innerHTML = good.price + '<span class="card__currency"> ₽ </span><span class="card__weight">/ ' + good.price + ' Г</span>';
+  goodElement.querySelector('.card__price').innerHTML = good.price + '<span class="card__currency"> ₽ </span>' + '<span class="card__weight">/ ' + good.weight + ' Г</span>';
   goodElement.querySelector('.stars__rating').textContent = good.rating.value;
   var starsRating = goodElement.querySelector('.stars__rating');
   starsRating.classList.remove('stars__rating--five');
@@ -133,50 +132,184 @@ var fragment = document.createDocumentFragment();
 for (var k = 0; k < goods.length; k++) {
   fragment.appendChild(renderCard(goods[k]));
 }
-// catalogCards.appendChild(fragment);
+catalogCards.appendChild(fragment);
 
-/*
 var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
-var onCardFavoriteBtnClick = function () {
-  cardFavoriteBtn.classList.add('.card__btn-favorite--selected');
-};
-cardFavoriteBtn.addEventListener('click', onCardFavoriteBtnClick);
+var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
+var mainHeaderBasket = document.querySelector('.main-header__basket');
+var goodsCardEmpty = document.querySelector('.goods__card-empty');
+var trolleyGoods = [];
 
-for (var p = 0; p < catalogCards.length; p++) {
-  var cardBtn = catalogCards[p].querySelectorAll('.card__btn');
-  var onCardBtnClick = function () {
-    goodsCards.appendChild(catalogCards[p]);
+cardFavoriteBtn.forEach(function (element) {
+  var onCardFavoriteBtnClick = function (evt) {
+    evt.preventDefault();
+    element.classList.toggle('.card__btn-favorite--selected');
   };
-  cardBtn.addEventListener('click', onCardBtnClick);
-}
-*/
-
-var getTrolleyDescription = function (trolleyDescriptionNumber) {
-  var trolleyDescriptions = [];
-  for (var j = 1; j <= trolleyDescriptionNumber; j++) {
-    trolleyDescriptions.push({
-      name: GOOD_NAME[j],
-      picture: IMAGES_PATH + IMAGE_ADDRESS[j],
-      price: getRandomNumber(10, 150) * 10
-    });
-  }
-  return trolleyDescriptions;
-};
-var trolleyGoods = getTrolleyDescription(TROLLEY_GOODS_AMOUNT);
+  element.addEventListener('click', onCardFavoriteBtnClick);
+});
 
 var renderTrolleyCard = function (trolleyGood) {
   var trolleyGoodElement = goodsCard.cloneNode(true);
+  trolleyGoodElement.name = trolleyGood.name;
   trolleyGoodElement.querySelector('.card-order__title').textContent = trolleyGood.name;
   trolleyGoodElement.querySelector('.card-order__img').src = trolleyGood.picture;
   trolleyGoodElement.querySelector('.card-order__price').textContent = trolleyGood.price + ' ₽';
+  trolleyGoodElement.querySelector('.card-order__count').value = trolleyGood.orderedAmount;
+
+  var orderCardClose = trolleyGoodElement.querySelector('.card-order__close');
+  var orderCardDecrease = trolleyGoodElement.querySelector('.card-order__btn--decrease');
+  var orderCardIncrease = trolleyGoodElement.querySelector('.card-order__btn--increase');
+
+  orderCardClose.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    deleteCard(trolleyGoodElement);
+  });
+
+  orderCardClose.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      deleteCard(trolleyGoodElement);
+    }
+  });
+
+  orderCardDecrease.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    decreaseOrderCardAmount(trolleyGoodElement);
+  });
+
+  orderCardDecrease.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      decreaseOrderCardAmount(trolleyGoodElement);
+    }
+  });
+
+  orderCardIncrease.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    increaseOrderCardAmount(trolleyGoodElement);
+  });
+
+  orderCardIncrease.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      increaseOrderCardAmount(trolleyGoodElement);
+    }
+  });
+
   return trolleyGoodElement;
 };
 
-var trolleyFragment = document.createDocumentFragment();
-for (var l = 0; l < trolleyGoods.length; l++) {
-  trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
-}
-// goodsCards.appendChild(trolleyFragment);
+var createTrolleyCard = function (chosenCard) {
+  var chCard = {};
+  Object.assign(chCard, chosenCard);
+  delete chCard.amount;
+  delete chCard.weight;
+  delete chCard.rating;
+  delete chCard.nutritionFacts;
+  chCard.orderedAmount = 1;
+  return chCard;
+};
+
+allCatalogCards.forEach(function (elt) {
+  var cardBtn = elt.querySelector('.card__btn');
+  var onCardBtnClick = function (evt) {
+    evt.preventDefault();
+    var eltData = elt.getAttribute('data-index');
+    goodsCardEmpty.classList.add('visually-hidden');
+    var chosenCard = goods[eltData];
+    if (chosenCard.amount > 0) {
+      chosenCard.amount -= 1;
+      var trolleyCard = getTrolleyCard(chosenCard.name);
+      if (trolleyCard) {
+        trolleyCard.orderedAmount++;
+      } else {
+        trolleyGoods.push(createTrolleyCard(chosenCard));
+      }
+      renderTrolleyFragment();
+    }
+    updateBasketGoodsCount();
+  };
+  cardBtn.addEventListener('click', onCardBtnClick);
+});
+
+var renderTrolleyFragment = function () {
+  var trolleyFragment = document.createDocumentFragment();
+  for (var l = 0; l < trolleyGoods.length; l++) {
+    trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
+  }
+  goodsCards.innerHTML = '<div class="goods__card-empty visually-hidden"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+  goodsCards.appendChild(trolleyFragment);
+};
+
+var updateBasketGoodsCount = function () {
+  if (trolleyGoods.length > 0) {
+    var basketGoods = '';
+    if (trolleyGoods.length < 2) {
+      basketGoods = ' товар';
+    } else if (trolleyGoods.length < 5) {
+      basketGoods = ' товара';
+    } else {
+      basketGoods = ' товаров';
+    }
+    mainHeaderBasket.textContent = 'В корзине ' + trolleyGoods.length + basketGoods;
+  } else {
+    mainHeaderBasket.textContent = 'В корзине ничего нет';
+    goodsCards.innerHTML = '<div class="goods__card-empty"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
+  }
+};
+
+var getCatalogDescCard = function (name) {
+  return goods.find(function (currentGood) {
+    return name === currentGood.name;
+  });
+};
+
+var getTrolleyCard = function (name) {
+  return trolleyGoods.find(function (currentGood) {
+    return name === currentGood.name;
+  });
+};
+
+var deleteCard = function (element) {
+  var catalogDescCard = getCatalogDescCard(element.name);
+  var trolleyCard = getTrolleyCard(element.name);
+  catalogDescCard.amount += trolleyCard.orderedAmount;
+
+  goodsCards.removeChild(element);
+  for (var e = 0; e < trolleyGoods.length; e++) {
+    if (element.name === trolleyGoods[e].name) {
+      trolleyGoods.splice(e, 1);
+    }
+  }
+  updateBasketGoodsCount();
+
+  if (trolleyGoods.length > 0) {
+    renderTrolleyFragment();
+  }
+};
+
+var decreaseOrderCardAmount = function (element) {
+  var catalogDescCard = getCatalogDescCard(element.name);
+  var trolleyCard = getTrolleyCard(element.name);
+
+  catalogDescCard.amount++;
+  trolleyCard.orderedAmount--;
+
+  if (trolleyCard.orderedAmount <= 0) {
+    deleteCard(element);
+  }
+  if (trolleyGoods.length > 0) {
+    renderTrolleyFragment();
+  }
+};
+
+var increaseOrderCardAmount = function (element) {
+  var catalogDescCard = getCatalogDescCard(element.name);
+  var trolleyCard = getTrolleyCard(element.name);
+
+  if (catalogDescCard.amount > 0) {
+    catalogDescCard.amount--;
+    trolleyCard.orderedAmount++;
+  }
+  renderTrolleyFragment();
+};
 
 var luhnAlgorithm = function () {
   var arr = cardNumber.value.split('');
@@ -192,7 +325,7 @@ var luhnAlgorithm = function () {
   return digitSum % 10 === 0;
 };
 
-paymentCash.addEventListener('click', function () {
+var choosePaymentCash = function () {
   paymentCashWrap.classList.remove('visually-hidden');
   paymentCardWrap.classList.add('visually-hidden');
   cardNumber.disabled = true;
@@ -203,9 +336,9 @@ paymentCash.addEventListener('click', function () {
   cardDate.required = false;
   cardCvc.required = false;
   cardholder.required = false;
-});
+};
 
-paymentCard.addEventListener('click', function () {
+var choosePaymentCard = function () {
   paymentCashWrap.classList.add('visually-hidden');
   paymentCardWrap.classList.remove('visually-hidden');
   cardNumber.disabled = false;
@@ -216,9 +349,31 @@ paymentCard.addEventListener('click', function () {
   cardDate.required = true;
   cardCvc.required = true;
   cardholder.required = true;
+};
+
+paymentCash.addEventListener('click', function () {
+  choosePaymentCash();
 });
 
-var deliverStoreClick = function () {
+paymentCash.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    choosePaymentCash();
+  }
+});
+
+paymentCard.addEventListener('click', function () {
+  choosePaymentCard();
+});
+
+paymentCard.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    choosePaymentCard();
+  }
+});
+
+var chooseDeliverStore = function () {
+  deliverStoreWrap.classList.remove('visually-hidden');
+  deliverCourierWrap.classList.add('visually-hidden');
   deliverStreet.disabled = true;
   deliverHouse.disabled = true;
   deliverFloor.disabled = true;
@@ -227,15 +382,9 @@ var deliverStoreClick = function () {
   deliverStreet.required = false;
   deliverHouse.required = false;
   deliverRoom.required = false;
-}();
+};
 
-deliverStore.addEventListener('click', function () {
-  deliverStoreWrap.classList.remove('visually-hidden');
-  deliverCourierWrap.classList.add('visually-hidden');
-  deliverStoreClick();
-});
-
-deliverCourier.addEventListener('click', function () {
+var chooseDeliverCourier = function () {
   deliverCourierWrap.classList.remove('visually-hidden');
   deliverStoreWrap.classList.add('visually-hidden');
   deliverStreet.disabled = false;
@@ -246,6 +395,26 @@ deliverCourier.addEventListener('click', function () {
   deliverStreet.required = true;
   deliverHouse.required = true;
   deliverRoom.required = true;
+};
+
+deliverStore.addEventListener('click', function () {
+  chooseDeliverStore();
+});
+
+deliverStore.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    chooseDeliverStore();
+  }
+});
+
+deliverCourier.addEventListener('click', function () {
+  chooseDeliverCourier();
+});
+
+deliverCourier.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    chooseDeliverCourier();
+  }
 });
 
 orderCreation.addEventListener('click', function () {
@@ -364,3 +533,94 @@ if () {
   });
 }
 */
+
+var catalogFilterRange = document.querySelector('.range__filter');
+var leftRange = catalogFilterRange.querySelector('.range__btn--left');
+var rightRange = catalogFilterRange.querySelector('.range__btn--right');
+var rangePriceMin = document.querySelector('.range__price--min');
+var rangePriceMax = document.querySelector('.range__price--max');
+rangePriceMin.textContent = 0;
+rangePriceMax.textContent = 100;
+// var rangeFillLine = document.querySelector('.range__fill-line');
+
+var priceMx = Math.floor((rightRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
+var priceMn = Math.floor((leftRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
+rangePriceMax.textContent = priceMx;
+rangePriceMin.textContent = priceMn;
+
+var onLeftRangeMouseDown = function (evt) {
+  evt.preventDefault();
+  var startCoords = evt.clientX - RANGE_BTN_WIDTH / 2;
+  var dragged = false;
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    dragged = true;
+    var shift = startCoords - moveEvt.clientX;
+    startCoords = moveEvt.clientX;
+    leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
+    var leftRangePos = parseInt(leftRange.style.left, 10);
+
+    if (leftRangePos < 0) {
+      leftRange.style.left = '0px';
+    } else if (leftRangePos > rightRange.offsetLeft) {
+      leftRange.style.left = rightRange.offsetLeft + 'px';
+    }
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    if (!dragged) {
+      leftRange.style.left = leftRange.offsetLeft + 'px';
+    }
+
+    var priceMin = Math.floor(parseInt(leftRange.style.left, 10) / RANGE_WIDTH * 100);
+    rangePriceMin.textContent = priceMin;
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+};
+leftRange.addEventListener('mousedown', onLeftRangeMouseDown);
+
+var onRightRangeMouseDown = function (evt) {
+  evt.preventDefault();
+  var startCoords = evt.clientX - RANGE_BTN_WIDTH / 2;
+  window.startCoordsR = startCoords;
+  var dragged = false;
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    dragged = true;
+    var shift = startCoords - moveEvt.clientX;
+    startCoords = moveEvt.clientX;
+    rightRange.style.left = (rightRange.offsetLeft - shift) + 'px';
+    var rightRangePos = parseInt(rightRange.style.left, 10);
+
+    if (rightRangePos > RANGE_WIDTH) {
+      rightRange.style.left = RANGE_WIDTH + 'px';
+    } else if (rightRangePos < leftRange.offsetLeft) {
+      rightRange.style.left = leftRange.offsetLeft + 'px';
+    }
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    if (!dragged) {
+      rightRange.style.left = rightRange.offsetLeft + 'px';
+    }
+
+    var priceMax = Math.floor(parseInt(rightRange.style.left, 10) / RANGE_WIDTH * 100);
+    rangePriceMax.textContent = priceMax;
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+};
+rightRange.addEventListener('mousedown', onRightRangeMouseDown);
