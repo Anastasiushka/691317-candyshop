@@ -8,7 +8,8 @@ var GOODS_AMOUNT = 26;
 var ENTER_KEYCODE = 13;
 var MAP_PATH = 'img/map/';
 var MAP_ADDRESS = ['academicheskaya.jpg', 'vasileostrovskaya.jpg', 'rechka.jpg', 'petrogradskaya.jpg', 'proletarskaya.jpg', 'vostaniya.jpg', 'prosvesheniya.jpg', 'frunzenskaya.jpg', 'chernishevskaya.jpg', 'tehinstitute.jpg'];
-
+var RANGE_BTN_WIDTH = 10;
+var RANGE_WIDTH = 245;
 
 var catalogCards = document.querySelector('.catalog__cards');
 catalogCards.classList.remove('catalog__cards--load');
@@ -255,21 +256,15 @@ var updateBasketGoodsCount = function () {
 };
 
 var getCatalogDescCard = function (name) {
-  for (var j = 0; j < goods.length; j++) {
-    if (name === goods[j].name) {
-      return goods[j];
-    }
-  }
-  return undefined;
+  return goods.find(function(currentGood) {
+    return name === currentGood.name;
+  });
 };
 
 var getTrolleyCard = function (name) {
-  for (var j = 0; j < trolleyGoods.length; j++) {
-    if (name === trolleyGoods[j].name) {
-      return trolleyGoods[j];
-    }
-  }
-  return undefined;
+  return trolleyGoods.find(function(currentGood) {
+    return name === currentGood.name;
+  });
 };
 
 var deleteCard = function (element) {
@@ -546,57 +541,87 @@ var rangePriceMin = document.querySelector('.range__price--min');
 var rangePriceMax = document.querySelector('.range__price--max');
 rangePriceMin.textContent = 0;
 rangePriceMax.textContent = 100;
-var RANGE_BTN_WIDTH = 10;
-var RANGE_WIDTH = 245;
-// var MAX_RANGE = 255 + 'px';
-var MIN_RANGE = 10 + 'px';
+var rangeFillLine = document.querySelector('.range__fill-line');
+console.log(rangeFillLine.style.left);
+
+var priceMx = Math.floor((rightRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
+var priceMn = Math.floor((leftRange.offsetLeft - RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
+rangePriceMax.textContent = priceMx;
+rangePriceMin.textContent = priceMn;
 
 var onLeftRangeMouseDown = function (evt) {
   evt.preventDefault();
-  var startCoords = evt.clientX;
+  var startCoords = evt.clientX - RANGE_BTN_WIDTH / 2;
+  var dragged = false;
 
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
-    if (moveEvt.clientX > parseInt(MIN_RANGE, 10)) {
-      var shift = startCoords - moveEvt.clientX;
-      startCoords = moveEvt.clientX;
-      leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
+    dragged = true;
+    var shift = startCoords - moveEvt.clientX;
+    startCoords = moveEvt.clientX;
+    leftRange.style.left = (leftRange.offsetLeft - shift) + 'px';
+    var leftRangePos = parseInt(leftRange.style.left);
+
+    if (leftRangePos < 0) {
+      leftRange.style.left = '0px';
+    } else if (leftRangePos > rightRange.offsetLeft) {
+      leftRange.style.left = rightRange.offsetLeft + 'px';
     }
   };
 
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
-    catalogFilterRange.removeEventListener('mousemove', onMouseMove);
-    catalogFilterRange.removeEventListener('mouseup', onMouseUp);
-    var priceMin = Math.floor((parseInt(leftRange.style.left, 10) + RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    if (!dragged) {
+      leftRange.style.left = leftRange.offsetLeft + 'px';
+    }
+
+    var priceMin = Math.floor(parseInt(leftRange.style.left, 10) / RANGE_WIDTH * 100);
     rangePriceMin.textContent = priceMin;
   };
 
-  catalogFilterRange.addEventListener('mousemove', onMouseMove);
-  catalogFilterRange.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 };
 leftRange.addEventListener('mousedown', onLeftRangeMouseDown);
 
 var onRightRangeMouseDown = function (evt) {
   evt.preventDefault();
-  var startCoords = evt.clientX;
+  var startCoords = evt.clientX - RANGE_BTN_WIDTH / 2;
+  window.startCoordsR = startCoords;
+  var dragged = false;
 
   var onMouseMove = function (moveEvt) {
     moveEvt.preventDefault();
+    dragged = true;
     var shift = startCoords - moveEvt.clientX;
     startCoords = moveEvt.clientX;
     rightRange.style.left = (rightRange.offsetLeft - shift) + 'px';
+    var rightRangePos = parseInt(rightRange.style.left);
+
+    if (rightRangePos > RANGE_WIDTH) {
+      rightRange.style.left = RANGE_WIDTH +'px';
+    } else if (rightRangePos < leftRange.offsetLeft) {
+      rightRange.style.left = leftRange.offsetLeft + 'px';
+    }
   };
 
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
-    catalogFilterRange.removeEventListener('mousemove', onMouseMove);
-    catalogFilterRange.removeEventListener('mouseup', onMouseUp);
-    var priceMax = Math.floor((parseInt(rightRange.style.left, 10) + RANGE_BTN_WIDTH / 2) / RANGE_WIDTH * 100);
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    if (!dragged) {
+      rightRange.style.left = rightRange.offsetLeft + 'px';
+    }
+
+    var priceMax = Math.floor(parseInt(rightRange.style.left, 10) / RANGE_WIDTH * 100);
     rangePriceMax.textContent = priceMax;
   };
 
-  catalogFilterRange.addEventListener('mousemove', onMouseMove);
-  catalogFilterRange.addEventListener('mouseup', onMouseUp);
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 };
 rightRange.addEventListener('mousedown', onRightRangeMouseDown);
