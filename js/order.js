@@ -83,7 +83,7 @@
         deliverDescription.disabled = false;
       }
       buySubmitButton.disabled = false;
-    }  
+    }
   };
 
   var choosePaymentCash = function () {
