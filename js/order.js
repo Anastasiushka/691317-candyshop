@@ -4,6 +4,7 @@
 
   var MAP_PATH = 'img/map/';
   var MAP_ADDRESS = ['academicheskaya.jpg', 'vasileostrovskaya.jpg', 'rechka.jpg', 'petrogradskaya.jpg', 'proletarskaya.jpg', 'vostaniya.jpg', 'prosvesheniya.jpg', 'frunzenskaya.jpg', 'chernishevskaya.jpg', 'tehinstitute.jpg'];
+  var ESC_KEYCODE = 27;
 
   var paymentCardWrap = document.querySelector('.payment__card-wrap');
   var cardNumber = paymentCardWrap.querySelector('input[name = "card-number"]');
@@ -31,6 +32,10 @@
   var contactDataEmail = contactData.querySelector('input[name = "email"]');
   var paymentCardStatus = paymentCardWrap.querySelector('.payment__card-status');
   var orderCreation = document.querySelector('.buy').querySelector('form');
+  var orderCreationSuccess = document.querySelector('.order-creation__success');
+  var orderCreationError = document.querySelector('.order-creation__error');
+  var modalCloseSuccess = orderCreationSuccess.querySelector('.modal__close');
+  var modalCloseError = orderCreationError.querySelector('.modal__close');
 
   var luhnAlgorithm = function () {
     var arr = cardNumber.value.split('');
@@ -232,5 +237,60 @@
   cardDate.addEventListener('change', onCardInputsChange);
   cardCvc.addEventListener('change', onCardInputsChange);
   cardholder.addEventListener('change', onCardInputsChange);
+
+  var onModalEscPress = function (evt) {
+    if (evt.keyCode === ESC_KEYCODE) {
+      closeOrderCreationSuccess();
+      closeOrderCreationError();
+    }
+  };
+
+  var closeOrderCreationSuccess = function () {
+    orderCreationSuccess.classList.add('modal--hidden');
+    document.removeEventListener('keydown', onModalEscPress);
+  };
+
+  modalCloseSuccess.addEventListener('click', function () {
+    closeOrderCreationSuccess();
+  });
+
+  modalCloseSuccess.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === window.ENTER_KEYCODE) {
+      closeOrderCreationSuccess();
+    }
+  });
+
+  var closeOrderCreationError = function () {
+    orderCreationError.classList.add('modal--hidden');
+    document.removeEventListener('keydown', onModalEscPress);
+  };
+
+  modalCloseError.addEventListener('click', function () {
+    closeOrderCreationError();
+  });
+
+  modalCloseError.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === window.ENTER_KEYCODE) {
+      closeOrderCreationError();
+    }
+  });
+
+  var saveSuccessHandler = function () {
+    orderCreationSuccess.classList.remove('modal--hidden');
+    document.addEventListener('keydown', onModalEscPress);
+    orderCreation.reset();
+  };
+
+  var saveErrorHandler = function (errorMessage) {
+    orderCreationError.classList.remove('modal--hidden');
+    document.addEventListener('keydown', onModalEscPress);
+    var orderErrorMessage = document.querySelector('.error__code');
+    orderErrorMessage.textContent = errorMessage;
+  };
+
+  orderCreation.addEventListener('submit', function (evt) {
+    window.backend.save(new FormData(orderCreation), saveSuccessHandler, saveErrorHandler);
+    evt.preventDefault();
+  });
 
 })();
