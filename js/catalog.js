@@ -13,16 +13,11 @@
   var goodsCards = document.querySelector('.goods__cards');
   goodsCards.classList.remove('goods__cards--empty');
 
-  var getRandomNumber = function (min, max) {
-    var randomNumber = Math.floor(min + Math.random() * (max + 1 - min));
-    return randomNumber;
-  };
-  
   var renderCards = function () {
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < goods.length; i++) {
-      
+
       var good = goods[i];
       var ratingClass = 'stars__rating--one';
       if (good.rating.value === 2) {
