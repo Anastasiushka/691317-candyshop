@@ -3,7 +3,10 @@
 (function () {
   var IMAGES_PATH = 'img/cards/';
   var ENTER_KEYCODE = 13;
+  
   window.ENTER_KEYCODE = ENTER_KEYCODE;
+  window.priceMin = 0;
+  window.priceMax = 100;
 
   var catalogCards = document.querySelector('.catalog__cards');
   catalogCards.classList.remove('catalog__cards--load');
@@ -12,13 +15,34 @@
   var goodsCard = document.querySelector('#card-order').content.querySelector('.goods_card');
   var goodsCards = document.querySelector('.goods__cards');
   goodsCards.classList.remove('goods__cards--empty');
+  var emptyFilters = document.querySelector('#empty-filters').content.querySelector('.catalog__empty-filter');
+  var mainHeaderBasket = document.querySelector('.main-header__basket');
+
+  var goods = [];
+  var goodsFavorite = [];
+  var trolleyGoods = [];
 
   var renderCards = function () {
+
+    var rendered = 0;
     var fragment = document.createDocumentFragment();
+    var itemCountAvailability = document.querySelector('.item-count__availability');
+    catalogCards.innerHTML = '<p class="catalog__load visually-hidden">Данные загружаются...</p>';
 
-    for (var i = 0; i < goods.length; i++) {
+    var cards = goods;
+    if (window.filterOnlyFavorite) {
+      cards = goodsFavorite;
+    }
 
-      var good = goods[i];
+    window.sortGoods(cards);
+
+    for (var i = 0; i < cards.length; i++) {
+      var good = cards[i];
+
+      if (!window.checkFilter(good)) {
+        continue;
+      }
+
       var ratingClass = 'stars__rating--one';
       if (good.rating.value === 2) {
         ratingClass = 'stars__rating--two';
@@ -53,70 +77,130 @@
       goodElement.querySelector('.card__composition-list').textContent = good.nutritionFacts.consist;
 
       fragment.appendChild(goodElement);
+      rendered++;
     }
     catalogCards.appendChild(fragment);
     catalogLoad.classList.add('visually-hidden');
+    addGoodsEvents();
+    updateAviableCount();
+    updateFilteredCount();
+
+    if (rendered === 0) {
+      catalogCards.innerHTML = '';
+      catalogCards.appendChild(emptyFilters);
+    }
+
   };
 
-  var goods = [];
-
-  var loadSuccessHandler = function (objects) {
-    goods = objects;
-    renderCards();
-    init();
+  var updateFavoriteCount = function () {
+    var itemCountFavorite = document.querySelector('.item-count__favorite');
+    itemCountFavorite.textContent = '(' + goodsFavorite.length + ')';
   };
 
-  var loadErrorHandler = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
-
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
+  var updateAviableCount = function() {
+    var aviable = 0;
+    for (var i = 0; i < goods.length; i++) {
+      var good = goods[i];
+      if (good.amount > 0) {
+        aviable++;
+      }
+    }
+    var itemCountAvailability = document.querySelector('.item-count__availability');
+    itemCountAvailability.textContent = '(' + aviable + ')';
   };
 
-  window.backend.load(loadSuccessHandler, loadErrorHandler);
+  var updateFilteredCount = function () {
+    var itemBtnRangeCount = document.querySelector('.range__count');
+    var itemPriceRange = 0;     
+    var itemCountIcecream = 0;     
+    var itemCountSoda = 0;         
+    var itemCountGum = 0;          
+    var itemCountMarmalade = 0;    
+    var itemCountMarshmallows = 0; 
+    var itemCountSugarFree = 0;    
+    var itemCountVegetarian = 0;   
+    var itemCountGlutenFree = 0;   
+    for (var i = 0; i < goods.length; i++) {
+      var good = goods[i];
+      if (good.price < window.priceMin || good.price > window.priceMax) {
+          continue;
+      }
+      itemPriceRange++;
+      switch(good.kind) {
+        case 'Мороженое':
+          itemCountIcecream++;
+          break;
+        case 'Газировка':
+          itemCountSoda++;
+          break;
+        case 'Жевательная резинка':
+          itemCountGum++;
+          break;
+        case 'Мармелад':
+          itemCountMarmalade++;
+          break;
+        case 'Зефир':
+          itemCountMarshmallows++;
+          break;
+      }
+      if (!good.nutritionFacts.sugar) {
+          itemCountSugarFree++;
+      }
+      if (!good.nutritionFacts.gluten) {
+          itemCountVegetarian++;
+      }
+      if (good.nutritionFacts.vegetarian) {
+          itemCountGlutenFree++;
+      }
+    }
+    document.querySelector('.item-count__icecream').textContent = '(' + itemCountIcecream + ')';
+    document.querySelector('.item-count__soda').textContent = '(' + itemCountSoda + ')';
+    document.querySelector('.item-count__gum').textContent = '(' + itemCountGum + ')';
+    document.querySelector('.item-count__marmalade').textContent = '(' + itemCountMarmalade + ')';
+    document.querySelector('.item-count__marshmallows').textContent = '(' + itemCountMarshmallows + ')';
+    document.querySelector('.item-count__sugar-free').textContent = '(' + itemCountSugarFree + ')';
+    document.querySelector('.item-count__gluten-free').textContent = '(' + itemCountVegetarian + ')';
+    document.querySelector('.item-count__vegetarian').textContent = '(' + itemCountGlutenFree + ')';
 
-  var mainHeaderBasket = document.querySelector('.main-header__basket');
-  var trolleyGoods = [];
-  window.trolleyGoods = trolleyGoods;
+    itemBtnRangeCount.textContent = '(' + itemPriceRange + ')';
+  };
 
-  var init = function () {
-    var goodsCardEmpty = document.querySelector('.goods__card-empty');
-    var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
-    var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
-    cardFavoriteBtn.forEach(function (element) {
-      var onCardFavoriteBtnClick = function (evt) {
-        evt.preventDefault();
-        element.classList.toggle('.card__btn-favorite--selected');
-      };
-      element.addEventListener('click', onCardFavoriteBtnClick);
-    });
+  var addGoodsEvents = function() {
+      var goodsCardEmpty = document.querySelector('.goods__card-empty');
+      var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
+      var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
 
-    allCatalogCards.forEach(function (elt) {
-      var cardBtn = elt.querySelector('.card__btn');
-      var onCardBtnClick = function (evt) {
-        evt.preventDefault();
-        var eltData = elt.getAttribute('data-index');
-        goodsCardEmpty.classList.add('visually-hidden');
-        var chosenCard = goods[eltData];
-        if (chosenCard.amount > 0) {
-          chosenCard.amount -= 1;
-          var trolleyCard = getTrolleyCard(chosenCard.name);
-          if (trolleyCard) {
-            trolleyCard.orderedAmount++;
-          } else {
-            trolleyGoods.push(createTrolleyCard(chosenCard));
+      allCatalogCards.forEach(function (elt) {
+        var cardFav = elt.querySelector('.card__btn-favorite');
+        var onCardFavoriteBtnClick = function (evt) {
+          evt.preventDefault();
+          var eltData = elt.getAttribute('data-index');
+          goodsFavorite.push(goods[eltData]);
+          cardFav.classList.toggle('.card__btn-favorite--selected');
+          updateFavoriteCount();
+        };
+        cardFav.addEventListener('click', onCardFavoriteBtnClick);
+
+        var cardBtn = elt.querySelector('.card__btn');
+        var onCardBtnClick = function (evt) {
+          evt.preventDefault();
+          var eltData = elt.getAttribute('data-index');
+          goodsCardEmpty.classList.add('visually-hidden');
+          var chosenCard = goods[eltData];
+          if (chosenCard.amount > 0) {
+            chosenCard.amount -= 1;
+            var trolleyCard = getTrolleyCard(chosenCard.name);
+            if (trolleyCard) {
+              trolleyCard.orderedAmount++;
+            } else {
+              trolleyGoods.push(createTrolleyCard(chosenCard));
+            }
+            renderTrolleyFragment();
           }
-          renderTrolleyFragment();
-        }
-        updateBasketGoodsCount();
-      };
-      cardBtn.addEventListener('click', onCardBtnClick);
-    });
+          updateBasketGoodsCount();
+        };
+        cardBtn.addEventListener('click', onCardBtnClick);
+      });
   };
 
   var renderTrolleyCard = function (trolleyGood) {
@@ -262,4 +346,28 @@
     renderTrolleyFragment();
   };
 
+  var loadSuccessHandler = function (objects) {
+    goods = objects;
+    renderCards();
+    updateFilteredCount();
+    updateFavoriteCount();
+  };
+
+  var loadErrorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  window.backend.load(loadSuccessHandler, loadErrorHandler);
+  window.trolleyGoods = trolleyGoods;
+  window.renderCards = renderCards;
+  window.goods = goods;
+  window.goodsFavorite = goodsFavorite;
 })();
