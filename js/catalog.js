@@ -3,7 +3,7 @@
 (function () {
   var IMAGES_PATH = 'img/cards/';
   var ENTER_KEYCODE = 13;
-  
+
   window.ENTER_KEYCODE = ENTER_KEYCODE;
   window.priceMin = 0;
   window.priceMax = 100;
@@ -26,7 +26,6 @@
 
     var rendered = 0;
     var fragment = document.createDocumentFragment();
-    var itemCountAvailability = document.querySelector('.item-count__availability');
     catalogCards.innerHTML = '<p class="catalog__load visually-hidden">Данные загружаются...</p>';
 
     var cards = goods;
@@ -97,7 +96,7 @@
     itemCountFavorite.textContent = '(' + goodsFavorite.length + ')';
   };
 
-  var updateAviableCount = function() {
+  var updateAviableCount = function () {
     var aviable = 0;
     for (var i = 0; i < goods.length; i++) {
       var good = goods[i];
@@ -111,22 +110,22 @@
 
   var updateFilteredCount = function () {
     var itemBtnRangeCount = document.querySelector('.range__count');
-    var itemPriceRange = 0;     
-    var itemCountIcecream = 0;     
-    var itemCountSoda = 0;         
-    var itemCountGum = 0;          
-    var itemCountMarmalade = 0;    
-    var itemCountMarshmallows = 0; 
-    var itemCountSugarFree = 0;    
-    var itemCountVegetarian = 0;   
-    var itemCountGlutenFree = 0;   
+    var itemPriceRange = 0;
+    var itemCountIcecream = 0;
+    var itemCountSoda = 0;
+    var itemCountGum = 0;
+    var itemCountMarmalade = 0;
+    var itemCountMarshmallows = 0;
+    var itemCountSugarFree = 0;
+    var itemCountVegetarian = 0;
+    var itemCountGlutenFree = 0;
     for (var i = 0; i < goods.length; i++) {
       var good = goods[i];
       if (good.price < window.priceMin || good.price > window.priceMax) {
-          continue;
+        continue;
       }
       itemPriceRange++;
-      switch(good.kind) {
+      switch (good.kind) {
         case 'Мороженое':
           itemCountIcecream++;
           break;
@@ -144,13 +143,13 @@
           break;
       }
       if (!good.nutritionFacts.sugar) {
-          itemCountSugarFree++;
+        itemCountSugarFree++;
       }
       if (!good.nutritionFacts.gluten) {
-          itemCountVegetarian++;
+        itemCountVegetarian++;
       }
       if (good.nutritionFacts.vegetarian) {
-          itemCountGlutenFree++;
+        itemCountGlutenFree++;
       }
     }
     document.querySelector('.item-count__icecream').textContent = '(' + itemCountIcecream + ')';
@@ -165,42 +164,41 @@
     itemBtnRangeCount.textContent = '(' + itemPriceRange + ')';
   };
 
-  var addGoodsEvents = function() {
-      var goodsCardEmpty = document.querySelector('.goods__card-empty');
-      var cardFavoriteBtn = catalogCards.querySelectorAll('.card__btn-favorite');
-      var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
+  var addGoodsEvents = function () {
+    var goodsCardEmpty = document.querySelector('.goods__card-empty');
+    var allCatalogCards = catalogCards.querySelectorAll('.catalog__card');
 
-      allCatalogCards.forEach(function (elt) {
-        var cardFav = elt.querySelector('.card__btn-favorite');
-        var onCardFavoriteBtnClick = function (evt) {
-          evt.preventDefault();
-          var eltData = elt.getAttribute('data-index');
-          goodsFavorite.push(goods[eltData]);
-          cardFav.classList.toggle('.card__btn-favorite--selected');
-          updateFavoriteCount();
-        };
-        cardFav.addEventListener('click', onCardFavoriteBtnClick);
+    allCatalogCards.forEach(function (elt) {
+      var cardFav = elt.querySelector('.card__btn-favorite');
+      var onCardFavoriteBtnClick = function (evt) {
+        evt.preventDefault();
+        var eltData = elt.getAttribute('data-index');
+        goodsFavorite.push(goods[eltData]);
+        cardFav.classList.toggle('.card__btn-favorite--selected');
+        updateFavoriteCount();
+      };
+      cardFav.addEventListener('click', onCardFavoriteBtnClick);
 
-        var cardBtn = elt.querySelector('.card__btn');
-        var onCardBtnClick = function (evt) {
-          evt.preventDefault();
-          var eltData = elt.getAttribute('data-index');
-          goodsCardEmpty.classList.add('visually-hidden');
-          var chosenCard = goods[eltData];
-          if (chosenCard.amount > 0) {
-            chosenCard.amount -= 1;
-            var trolleyCard = getTrolleyCard(chosenCard.name);
-            if (trolleyCard) {
-              trolleyCard.orderedAmount++;
-            } else {
-              trolleyGoods.push(createTrolleyCard(chosenCard));
-            }
-            renderTrolleyFragment();
+      var cardBtn = elt.querySelector('.card__btn');
+      var onCardBtnClick = function (evt) {
+        evt.preventDefault();
+        var eltData = elt.getAttribute('data-index');
+        goodsCardEmpty.classList.add('visually-hidden');
+        var chosenCard = goods[eltData];
+        if (chosenCard.amount > 0) {
+          chosenCard.amount -= 1;
+          var trolleyCard = getTrolleyCard(chosenCard.name);
+          if (trolleyCard) {
+            trolleyCard.orderedAmount++;
+          } else {
+            trolleyGoods.push(createTrolleyCard(chosenCard));
           }
-          updateBasketGoodsCount();
-        };
-        cardBtn.addEventListener('click', onCardBtnClick);
-      });
+          renderTrolleyFragment();
+        }
+        updateBasketGoodsCount();
+      };
+      cardBtn.addEventListener('click', onCardBtnClick);
+    });
   };
 
   var renderTrolleyCard = function (trolleyGood) {
