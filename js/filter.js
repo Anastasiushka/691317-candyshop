@@ -5,8 +5,10 @@
   var RANGE_BTN_WIDTH = 10;
   var RANGE_WIDTH = 245;
 
-  var priceMin = 0;
-  var priceMax = 100;
+  var price = {
+    min: 0,
+    max: 0
+  };
 
   var catalogFilterRange = document.querySelector('.range__filter');
   var leftRange = catalogFilterRange.querySelector('.range__btn--left');
@@ -192,7 +194,7 @@
       window.filterOnlyFavorite = false;
       window.catalog.renderCards();
     }));
-    setPrices(window.filter.priceMin, window.filter.priceMax);
+    setPrices(price.min, price.max);
   };
 
   var loadErrorHandler = function (errorMessage) {
@@ -242,6 +244,10 @@
 
   var checkFilter = function (good) {
 
+    if (filterOnlyFavorite && !good.inFavorite) {
+      return false;
+    }
+
     if (filterOnlyAvailable) {
       if (good.amount === 0) {
         return false;
@@ -249,7 +255,7 @@
       return true;
     }
 
-    if (good.price < window.filter.priceMin || good.price > window.filter.priceMax) {
+    if (good.price < price.min || good.price > price.max) {
       return false;
     }
 
@@ -306,12 +312,12 @@
     }
 
     if (pos === 0) {
-      window.filter.priceMin = 0;
+      price.min = 0;
     } else {
-      window.filter.priceMin = Math.floor(pos / RANGE_WIDTH * 100);
+      price.min = Math.floor(pos / RANGE_WIDTH * 100);
     }
 
-    rangePriceMin.textContent = window.filter.priceMin;
+    rangePriceMin.textContent = price.min;
 
     leftRange.style.left = pos + 'px';
     rangeFillLine.style.left = pos + RANGE_BTN_WIDTH / 2 + 'px';
@@ -327,12 +333,12 @@
     }
 
     if (pos === 0) {
-      window.filter.priceMax = 0;
+      price.max = 0;
     } else {
-      window.filter.priceMax = Math.floor(pos / RANGE_WIDTH * 100);
+      price.max = Math.floor(pos / RANGE_WIDTH * 100);
     }
 
-    rangePriceMax.textContent = window.filter.priceMax;
+    rangePriceMax.textContent = price.max;
 
     rightRange.style.left = pos + 'px';
     rangeFillLine.style.right = catalogFilterRange.offsetWidth - pos - RANGE_BTN_WIDTH / 2 + 'px';
@@ -417,8 +423,7 @@
   window.filter = {
     checkFilter: checkFilter,
     sortGoods: sortGoods,
-    priceMin: priceMin,
-    priceMax: priceMax,
+    price: price,
     setPrices: setPrices
   };
 })();

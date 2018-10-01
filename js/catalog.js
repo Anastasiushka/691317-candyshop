@@ -15,8 +15,8 @@
   var mainHeaderBasket = document.querySelector('.main-header__basket');
 
   var goods = [];
-  var goodsFavorite = [];
   var trolleyGoods = [];
+  var favoriteCount = 0;
 
   var renderCards = function () {
 
@@ -24,15 +24,10 @@
     var fragment = document.createDocumentFragment();
     catalogCards.innerHTML = '<p class="catalog__load visually-hidden">Данные загружаются...</p>';
 
-    var cards = goods;
-    if (window.filterOnlyFavorite) {
-      cards = goodsFavorite;
-    }
+    window.filter.sortGoods(goods);
 
-    window.filter.sortGoods(cards);
-
-    for (var i = 0; i < cards.length; i++) {
-      var good = cards[i];
+    for (var i = 0; i < goods.length; i++) {
+      var good = goods[i];
 
       if (!window.filter.checkFilter(good)) {
         continue;
@@ -71,6 +66,11 @@
       goodElement.querySelector('.card__characteristic').textContent = good.nutritionFacts.sugarTF + good.nutritionFacts.energy + ' ккал';
       goodElement.querySelector('.card__composition-list').textContent = good.nutritionFacts.consist;
 
+      if (good.inFavorite) {
+        var cardFav = goodElement.querySelector('.card__btn-favorite');
+        cardFav.classList.add('card__btn-favorite--selected');
+      }
+
       fragment.appendChild(goodElement);
       rendered++;
     }
@@ -79,6 +79,7 @@
     addGoodsEvents();
     updateAvailableCount();
     updateFilteredCount();
+    updateFavoriteCount();
 
     if (rendered === 0) {
       catalogCards.innerHTML = '';
@@ -89,7 +90,7 @@
 
   var updateFavoriteCount = function () {
     var itemCountFavorite = document.querySelector('.item-count__favorite');
-    itemCountFavorite.textContent = '(' + goodsFavorite.length + ')';
+    itemCountFavorite.textContent = '(' + favoriteCount + ')';
   };
 
   var updateAvailableCount = function () {
@@ -117,7 +118,7 @@
     var itemCountGlutenFree = 0;
     for (var i = 0; i < goods.length; i++) {
       var good = goods[i];
-      if (good.price < window.filter.priceMin || good.price > window.filter.priceMax) {
+      if (good.price < window.filter.price.min || good.price > window.filter.price.max) {
         continue;
       }
       itemPriceRange++;
@@ -169,8 +170,18 @@
       var onCardFavoriteBtnClick = function (evt) {
         evt.preventDefault();
         var eltData = elt.getAttribute('data-index');
-        goodsFavorite.push(goods[eltData]);
-        cardFav.classList.toggle('card__btn-favorite--selected');
+        if (goods[eltData].inFavorite) {
+          cardFav.classList.remove('card__btn-favorite--selected');
+          goods[eltData].inFavorite = false;
+          favoriteCount--;
+          if (window.filterOnlyFavorite) {
+            renderCards();
+          }
+        } else {
+          cardFav.classList.add('card__btn-favorite--selected');
+          goods[eltData].inFavorite = true;
+          favoriteCount++;
+        }
         updateFavoriteCount();
       };
       cardFav.addEventListener('click', onCardFavoriteBtnClick);
@@ -342,6 +353,9 @@
 
   var loadSuccessHandler = function (objects) {
     goods = objects;
+    for (var i = 0; i < goods.length; i++) {
+      goods[i].inFavorite = false;
+    }
     renderCards();
     updateFilteredCount();
     updateFavoriteCount();
@@ -365,7 +379,6 @@
     ENTER_KEYCODE: ENTER_KEYCODE,
     trolleyGoods: trolleyGoods,
     goods: goods,
-    goodsFavorite: goodsFavorite,
     renderCards: renderCards,
   };
 })();
