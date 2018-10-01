@@ -35,35 +35,35 @@
   });
 
   var resetFilters = function () {
-      var filterIcecreamData = document.querySelector('input[id = "filter-icecream"]');
-      var filterSodaData = document.querySelector('input[id = "filter-soda"]');
-      var filterGumData = document.querySelector('input[id = "filter-gum"]');
-      var filterMarmaladeData = document.querySelector('input[id = "filter-marmalade"]');
-      var filterMarshmallowsData = document.querySelector('input[id = "filter-marshmallows"]');
-      var filterSugarFreeData = document.querySelector('input[id = "filter-sugar-free"]');
-      var filterVegetarianData = document.querySelector('input[id = "filter-vegetarian"]');
-      var filterGlutenFreeData = document.querySelector('input[id = "filter-gluten-free"]');
+    var filterIcecreamData = document.querySelector('input[id = "filter-icecream"]');
+    var filterSodaData = document.querySelector('input[id = "filter-soda"]');
+    var filterGumData = document.querySelector('input[id = "filter-gum"]');
+    var filterMarmaladeData = document.querySelector('input[id = "filter-marmalade"]');
+    var filterMarshmallowsData = document.querySelector('input[id = "filter-marshmallows"]');
+    var filterSugarFreeData = document.querySelector('input[id = "filter-sugar-free"]');
+    var filterVegetarianData = document.querySelector('input[id = "filter-vegetarian"]');
+    var filterGlutenFreeData = document.querySelector('input[id = "filter-gluten-free"]');
 
-      filterIcecreamData.checked = false;
-      filterSodaData.checked = false;
-      filterGumData.checked = false;
-      filterMarmaladeData.checked = false;
-      filterMarshmallowsData.checked = false;
-      filterSugarFreeData.checked = false;
-      filterVegetarianData.checked = false;
-      filterGlutenFreeData.checked = false;
+    filterIcecreamData.checked = false;
+    filterSodaData.checked = false;
+    filterGumData.checked = false;
+    filterMarmaladeData.checked = false;
+    filterMarshmallowsData.checked = false;
+    filterSugarFreeData.checked = false;
+    filterVegetarianData.checked = false;
+    filterGlutenFreeData.checked = false;
 
-      filterIcecream = false;
-      filterSoda = false;
-      filterGum = false;
-      filterMarmalade = false;
-      filterMarshmallows = false;
+    filterIcecream = false;
+    filterSoda = false;
+    filterGum = false;
+    filterMarmalade = false;
+    filterMarshmallows = false;
 
-      filterSugarFree = false;
-      filterVegetarian = false;
-      filterGlutenFree = false;
+    filterSugarFree = false;
+    filterVegetarian = false;
+    filterGlutenFree = false;
 
-      setPrices(0, 100);
+    setPrices(0, 100);
   };
 
   var loadSuccessHandler = function () {
@@ -340,8 +340,8 @@
   };
 
   var setPrices = function (min, max) {
-    var pmin = min * RANGE_WIDTH  / 100;
-    var pmax = max * RANGE_WIDTH  / 100;
+    var pmin = min * RANGE_WIDTH / 100;
+    var pmax = max * RANGE_WIDTH / 100;
     updateMinPrice(pmin);
     updateMaxPrice(pmax);
   };
