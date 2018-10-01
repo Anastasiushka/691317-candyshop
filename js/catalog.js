@@ -4,10 +4,6 @@
   var IMAGES_PATH = 'img/cards/';
   var ENTER_KEYCODE = 13;
 
-  window.ENTER_KEYCODE = ENTER_KEYCODE;
-  window.priceMin = 0;
-  window.priceMax = 100;
-
   var catalogCards = document.querySelector('.catalog__cards');
   catalogCards.classList.remove('catalog__cards--load');
   var catalogLoad = document.querySelector('.catalog__load');
@@ -33,12 +29,12 @@
       cards = goodsFavorite;
     }
 
-    window.sortGoods(cards);
+    window.filter.sortGoods(cards);
 
     for (var i = 0; i < cards.length; i++) {
       var good = cards[i];
 
-      if (!window.checkFilter(good)) {
+      if (!window.filter.checkFilter(good)) {
         continue;
       }
 
@@ -81,7 +77,7 @@
     catalogCards.appendChild(fragment);
     catalogLoad.classList.add('visually-hidden');
     addGoodsEvents();
-    updateAviableCount();
+    updateAvailableCount();
     updateFilteredCount();
 
     if (rendered === 0) {
@@ -96,16 +92,16 @@
     itemCountFavorite.textContent = '(' + goodsFavorite.length + ')';
   };
 
-  var updateAviableCount = function () {
-    var aviable = 0;
+  var updateAvailableCount = function () {
+    var available = 0;
     for (var i = 0; i < goods.length; i++) {
       var good = goods[i];
       if (good.amount > 0) {
-        aviable++;
+        available++;
       }
     }
     var itemCountAvailability = document.querySelector('.item-count__availability');
-    itemCountAvailability.textContent = '(' + aviable + ')';
+    itemCountAvailability.textContent = '(' + available + ')';
   };
 
   var updateFilteredCount = function () {
@@ -121,7 +117,7 @@
     var itemCountGlutenFree = 0;
     for (var i = 0; i < goods.length; i++) {
       var good = goods[i];
-      if (good.price < window.priceMin || good.price > window.priceMax) {
+      if (good.price < window.filter.priceMin || good.price > window.filter.priceMax) {
         continue;
       }
       itemPriceRange++;
@@ -174,7 +170,7 @@
         evt.preventDefault();
         var eltData = elt.getAttribute('data-index');
         goodsFavorite.push(goods[eltData]);
-        cardFav.classList.toggle('.card__btn-favorite--selected');
+        cardFav.classList.toggle('card__btn-favorite--selected');
         updateFavoriteCount();
       };
       cardFav.addEventListener('click', onCardFavoriteBtnClick);
@@ -364,8 +360,12 @@
   };
 
   window.backend.load(loadSuccessHandler, loadErrorHandler);
-  window.trolleyGoods = trolleyGoods;
-  window.renderCards = renderCards;
-  window.goods = goods;
-  window.goodsFavorite = goodsFavorite;
+
+  window.catalog = {
+    ENTER_KEYCODE: ENTER_KEYCODE,
+    trolleyGoods: trolleyGoods,
+    goods: goods,
+    goodsFavorite: goodsFavorite,
+    renderCards: renderCards,
+  };
 })();

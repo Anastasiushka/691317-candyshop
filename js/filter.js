@@ -5,15 +5,15 @@
   var RANGE_BTN_WIDTH = 10;
   var RANGE_WIDTH = 245;
 
+  var priceMin = 0;
+  var priceMax = 100;
+
   var catalogFilterRange = document.querySelector('.range__filter');
   var leftRange = catalogFilterRange.querySelector('.range__btn--left');
   var rightRange = catalogFilterRange.querySelector('.range__btn--right');
   var rangePriceMin = document.querySelector('.range__price--min');
   var rangePriceMax = document.querySelector('.range__price--max');
   var rangeFillLine = document.querySelector('.range__fill-line');
-
-  rangePriceMin.textContent = window.priceMin;
-  rangePriceMax.textContent = window.priceMax;
 
   var filterIcecream = false;
   var filterSoda = false;
@@ -31,8 +31,40 @@
   var sortState = 'popular';
 
   var updatePriceDebounce = window.debounce(function () {
-    window.renderCards();
+    window.catalog.renderCards();
   });
+
+  var resetFilters = function () {
+      var filterIcecreamData = document.querySelector('input[id = "filter-icecream"]');
+      var filterSodaData = document.querySelector('input[id = "filter-soda"]');
+      var filterGumData = document.querySelector('input[id = "filter-gum"]');
+      var filterMarmaladeData = document.querySelector('input[id = "filter-marmalade"]');
+      var filterMarshmallowsData = document.querySelector('input[id = "filter-marshmallows"]');
+      var filterSugarFreeData = document.querySelector('input[id = "filter-sugar-free"]');
+      var filterVegetarianData = document.querySelector('input[id = "filter-vegetarian"]');
+      var filterGlutenFreeData = document.querySelector('input[id = "filter-gluten-free"]');
+
+      filterIcecreamData.checked = false;
+      filterSodaData.checked = false;
+      filterGumData.checked = false;
+      filterMarmaladeData.checked = false;
+      filterMarshmallowsData.checked = false;
+      filterSugarFreeData.checked = false;
+      filterVegetarianData.checked = false;
+      filterGlutenFreeData.checked = false;
+
+      filterIcecream = false;
+      filterSoda = false;
+      filterGum = false;
+      filterMarmalade = false;
+      filterMarshmallows = false;
+
+      filterSugarFree = false;
+      filterVegetarian = false;
+      filterGlutenFree = false;
+
+      setPrices(0, 100);
+  };
 
   var loadSuccessHandler = function () {
 
@@ -61,130 +93,106 @@
     itemBtnIcecream.addEventListener('click', window.debounce(function () {
       var filterIcecreamData = document.querySelector('input[id = "filter-icecream"]');
       filterIcecream = filterIcecreamData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnSoda.addEventListener('click', window.debounce(function () {
       var filterSodaData = document.querySelector('input[id = "filter-soda"]');
       filterSoda = filterSodaData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnGum.addEventListener('click', window.debounce(function () {
       var filterGumData = document.querySelector('input[id = "filter-gum"]');
       filterGum = filterGumData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnMarmalade.addEventListener('click', window.debounce(function () {
       var filterMarmaladeData = document.querySelector('input[id = "filter-marmalade"]');
       filterMarmalade = filterMarmaladeData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnMarshmallows.addEventListener('click', window.debounce(function () {
       var filterMarshmallowsData = document.querySelector('input[id = "filter-marshmallows"]');
       filterMarshmallows = filterMarshmallowsData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnSugarFree.addEventListener('click', window.debounce(function () {
       var filterSugarFreeData = document.querySelector('input[id = "filter-sugar-free"]');
       filterSugarFree = filterSugarFreeData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnVegetarian.addEventListener('click', window.debounce(function () {
       var filterVegetarianData = document.querySelector('input[id = "filter-vegetarian"]');
       filterVegetarian = filterVegetarianData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnGlutenFree.addEventListener('click', window.debounce(function () {
       var filterGlutenFreeData = document.querySelector('input[id = "filter-gluten-free"]');
       filterGlutenFree = filterGlutenFreeData.checked;
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnPopular.addEventListener('click', window.debounce(function () {
       sortState = 'popular';
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnExpensive.addEventListener('click', window.debounce(function () {
       sortState = 'expensive';
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnCheep.addEventListener('click', window.debounce(function () {
       sortState = 'cheep';
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnRating.addEventListener('click', window.debounce(function () {
       sortState = 'rating';
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnFavorite.addEventListener('click', window.debounce(function () {
-      var filterAvailability = document.querySelector('input[id = "filter-availability"]');
-      filterAvailability.checked = false;
-      window.filterOnlyFavorite = !window.filterOnlyFavorite;
+      resetFilters();
+      var filterFavoriteData = document.querySelector('input[id = "filter-favorite"]');
+      var filterAvailabilityData = document.querySelector('input[id = "filter-availability"]');
+      filterAvailabilityData.checked = false;
+      window.filterOnlyFavorite = filterFavoriteData.checked;
       if (window.filterOnlyFavorite) {
         filterOnlyAvailable = false;
       }
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     itemBtnAvailability.addEventListener('click', window.debounce(function () {
-      var filterFavorite = document.querySelector('input[id = "filter-favorite"]');
-      filterFavorite.checked = false;
-      filterOnlyAvailable = !filterOnlyAvailable;
+      resetFilters();
+      var filterAvailabilityData = document.querySelector('input[id = "filter-availability"]');
+      var filterFavoriteData = document.querySelector('input[id = "filter-favorite"]');
+      filterFavoriteData.checked = false;
+      filterOnlyAvailable = filterAvailabilityData.checked;
       if (filterOnlyAvailable) {
         window.filterOnlyFavorite = false;
       }
-      window.renderCards();
+      window.catalog.renderCards();
     }));
 
     showEverything.addEventListener('click', window.debounce(function () {
+      resetFilters();
       var filterAvailabilityData = document.querySelector('input[id = "filter-availability"]');
       var filterFavoriteData = document.querySelector('input[id = "filter-favorite"]');
-      var filterIcecreamData = document.querySelector('input[id = "filter-icecream"]');
-      var filterSodaData = document.querySelector('input[id = "filter-soda"]');
-      var filterGumData = document.querySelector('input[id = "filter-gum"]');
-      var filterMarmaladeData = document.querySelector('input[id = "filter-marmalade"]');
-      var filterMarshmallowsData = document.querySelector('input[id = "filter-marshmallows"]');
-      var filterSugarFreeData = document.querySelector('input[id = "filter-sugar-free"]');
-      var filterVegetarianData = document.querySelector('input[id = "filter-vegetarian"]');
-      var filterGlutenFreeData = document.querySelector('input[id = "filter-gluten-free"]');
-
       filterAvailabilityData.checked = false;
       filterFavoriteData.checked = false;
-      filterIcecreamData.checked = false;
-      filterSodaData.checked = false;
-      filterGumData.checked = false;
-      filterMarmaladeData.checked = false;
-      filterMarshmallowsData.checked = false;
-      filterSugarFreeData.checked = false;
-      filterVegetarianData.checked = false;
-      filterGlutenFreeData.checked = false;
-
-      filterIcecream = false;
-      filterSoda = false;
-      filterGum = false;
-      filterMarmalade = false;
-      filterMarshmallows = false;
-
-      filterSugarFree = false;
-      filterVegetarian = false;
-      filterGlutenFree = false;
-
       filterOnlyAvailable = false;
       window.filterOnlyFavorite = false;
-
-      window.renderCards();
+      window.catalog.renderCards();
     }));
-
+    setPrices(window.filter.priceMin, window.filter.priceMax);
   };
 
   var loadErrorHandler = function (errorMessage) {
@@ -241,7 +249,7 @@
       return true;
     }
 
-    if (good.price < window.priceMin || good.price > window.priceMax) {
+    if (good.price < window.filter.priceMin || good.price > window.filter.priceMax) {
       return false;
     }
 
@@ -289,14 +297,53 @@
     return true;
   };
 
-  var updateMinPrice = function (v) {
-    window.priceMin = Math.floor(v / RANGE_WIDTH * 100);
-    rangePriceMin.textContent = window.priceMin;
+  var updateMinPrice = function (pos) {
+
+    if (pos < 0) {
+      pos = 0;
+    } else if (pos > rightRange.offsetLeft) {
+      pos = rightRange.offsetLeft;
+    }
+
+    if (pos === 0) {
+      window.filter.priceMin = 0;
+    } else {
+      window.filter.priceMin = Math.floor(pos / RANGE_WIDTH * 100);
+    }
+
+    rangePriceMin.textContent = window.filter.priceMin;
+
+    leftRange.style.left = pos + 'px';
+    rangeFillLine.style.left = pos + RANGE_BTN_WIDTH / 2 + 'px';
+
   };
 
-  var updateMaxPrice = function (v) {
-    window.priceMax = Math.floor(v / RANGE_WIDTH * 100);
-    rangePriceMax.textContent = window.priceMax;
+  var updateMaxPrice = function (pos) {
+
+    if (pos > RANGE_WIDTH) {
+      pos = RANGE_WIDTH;
+    } else if (pos < leftRange.offsetLeft) {
+      pos = leftRange.offsetLeft;
+    }
+
+    if (pos === 0) {
+      window.filter.priceMax = 0;
+    } else {
+      window.filter.priceMax = Math.floor(pos / RANGE_WIDTH * 100);
+    }
+
+    rangePriceMax.textContent = window.filter.priceMax;
+
+    rightRange.style.left = pos + 'px';
+    rangeFillLine.style.right = catalogFilterRange.offsetWidth - pos - RANGE_BTN_WIDTH / 2 + 'px';
+
+  };
+
+  var setPrices = function (min, max) {
+    var pmin = min * RANGE_WIDTH  / 100;
+    var pmax = max * RANGE_WIDTH  / 100;
+    updateMinPrice(pmin);
+    updateMaxPrice(pmax);
   };
 
   var onLeftRangeMouseDown = function (evt) {
@@ -312,15 +359,7 @@
       startCoords = moveEvt.clientX;
 
       var leftRangePos = leftRange.offsetLeft - shift;
-      if (leftRangePos < 0) {
-        leftRangePos = 0;
-      } else if (leftRangePos > rightRange.offsetLeft) {
-        leftRangePos = rightRange.offsetLeft;
-      }
-
-      leftRange.style.left = leftRangePos + 'px';
-      rangeFillLine.style.left = leftRangePos + RANGE_BTN_WIDTH / 2 + 'px';
-      updateMinPrice(parseInt(leftRange.style.left, 10));
+      updateMinPrice(leftRangePos);
     };
 
     var onMouseUp = function (upEvt) {
@@ -353,15 +392,7 @@
       startCoords = moveEvt.clientX;
 
       var rightRangePos = rightRange.offsetLeft - shift;
-      if (rightRangePos > RANGE_WIDTH) {
-        rightRangePos = RANGE_WIDTH;
-      } else if (rightRangePos < leftRange.offsetLeft) {
-        rightRangePos = leftRange.offsetLeft;
-      }
-
-      rightRange.style.left = rightRangePos + 'px';
-      rangeFillLine.style.right = catalogFilterRange.offsetWidth - rightRangePos - RANGE_BTN_WIDTH / 2 + 'px';
-      updateMaxPrice(parseInt(rightRange.style.left, 10));
+      updateMaxPrice(rightRangePos);
     };
 
     var onMouseUp = function (upEvt) {
@@ -381,7 +412,13 @@
   };
   rightRange.addEventListener('mousedown', onRightRangeMouseDown);
 
-  window.checkFilter = checkFilter;
-  window.sortGoods = sortGoods;
   window.backend.load(loadSuccessHandler, loadErrorHandler);
+
+  window.filter = {
+    checkFilter: checkFilter,
+    sortGoods: sortGoods,
+    priceMin: priceMin,
+    priceMax: priceMax,
+    setPrices: setPrices
+  };
 })();
