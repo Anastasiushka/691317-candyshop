@@ -244,7 +244,7 @@
 
   var checkFilter = function (good) {
 
-    if (filterOnlyFavorite && !good.inFavorite) {
+    if (window.filterOnlyFavorite && !good.inFavorite) {
       return false;
     }
 
