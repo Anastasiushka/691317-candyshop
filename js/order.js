@@ -122,7 +122,7 @@
   });
 
   paymentCash.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.ENTER_KEYCODE) {
+    if (evt.keyCode === window.catalog.ENTER_KEYCODE) {
       choosePaymentCash();
     }
   });
@@ -132,7 +132,7 @@
   });
 
   paymentCard.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.ENTER_KEYCODE) {
+    if (evt.keyCode === window.catalog.ENTER_KEYCODE) {
       choosePaymentCard();
     }
   });
@@ -153,7 +153,7 @@
   var chooseDeliverCourier = function () {
     deliverCourierWrap.classList.remove('visually-hidden');
     deliverStoreWrap.classList.add('visually-hidden');
-    if (window.trolleyGoods.length > 0) {
+    if (window.catalog.trolleyGoods.length > 0) {
       deliverStreet.disabled = false;
       deliverHouse.disabled = false;
       deliverFloor.disabled = false;
@@ -170,7 +170,7 @@
   });
 
   deliverStore.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.ENTER_KEYCODE) {
+    if (evt.keyCode === window.catalog.ENTER_KEYCODE) {
       chooseDeliverStore();
     }
   });
@@ -180,7 +180,7 @@
   });
 
   deliverCourier.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.ENTER_KEYCODE) {
+    if (evt.keyCode === window.catalog.ENTER_KEYCODE) {
       chooseDeliverCourier();
     }
   });
@@ -255,7 +255,7 @@
   });
 
   modalCloseSuccess.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.ENTER_KEYCODE) {
+    if (evt.keyCode === window.catalog.ENTER_KEYCODE) {
       closeOrderCreationSuccess();
     }
   });
@@ -270,7 +270,7 @@
   });
 
   modalCloseError.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.ENTER_KEYCODE) {
+    if (evt.keyCode === window.catalog.ENTER_KEYCODE) {
       closeOrderCreationError();
     }
   });
