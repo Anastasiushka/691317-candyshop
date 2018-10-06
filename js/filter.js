@@ -17,18 +17,20 @@
   var rangePriceMax = document.querySelector('.range__price--max');
   var rangeFillLine = document.querySelector('.range__fill-line');
 
-  var filterIcecream = false;
-  var filterSoda = false;
-  var filterGum = false;
-  var filterMarmalade = false;
-  var filterMarshmallows = false;
+  var filters = {
+    icecream: false,
+    soda: false,
+    gum: false,
+    marmalade: false,
+    marshmallows: false,
 
-  var filterSugarFree = false;
-  var filterVegetarian = false;
-  var filterGlutenFree = false;
+    sugarFree: false,
+    vegetarian: false,
+    glutenFree: false,
 
-  var filterOnlyAvailable = false;
-  window.filterOnlyFavorite = false;
+    onlyAvailable: false,
+    onlyFavorite: false
+  };
 
   var sortState = 'popular';
 
@@ -55,20 +57,20 @@
     filterVegetarianData.checked = false;
     filterGlutenFreeData.checked = false;
 
-    filterIcecream = false;
-    filterSoda = false;
-    filterGum = false;
-    filterMarmalade = false;
-    filterMarshmallows = false;
+    filters.icecream = false;
+    filters.soda = false;
+    filters.gum = false;
+    filters.marmalade = false;
+    filters.marshmallows = false;
 
-    filterSugarFree = false;
-    filterVegetarian = false;
-    filterGlutenFree = false;
+    filters.sugarFree = false;
+    filters.vegetarian = false;
+    filters.glutenFree = false;
 
     setPrices(0, 100);
   };
 
-  var loadSuccessHandler = function () {
+  var listenButtonEvents = function () {
 
     var itemBtnIcecream = document.querySelector('.items-count__icecream');
     var itemBtnSoda = document.querySelector('.items-count__soda');
@@ -89,54 +91,51 @@
 
     var showEverything = document.querySelector('.catalog__submit');
 
-    updateMinPrice(leftRange.offsetLeft);
-    updateMaxPrice(rightRange.offsetLeft);
-
     itemBtnIcecream.addEventListener('click', window.debounce(function () {
       var filterIcecreamData = document.querySelector('input[id = "filter-icecream"]');
-      filterIcecream = filterIcecreamData.checked;
+      filters.icecream = filterIcecreamData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnSoda.addEventListener('click', window.debounce(function () {
       var filterSodaData = document.querySelector('input[id = "filter-soda"]');
-      filterSoda = filterSodaData.checked;
+      filters.soda = filterSodaData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnGum.addEventListener('click', window.debounce(function () {
       var filterGumData = document.querySelector('input[id = "filter-gum"]');
-      filterGum = filterGumData.checked;
+      filters.gum = filterGumData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnMarmalade.addEventListener('click', window.debounce(function () {
       var filterMarmaladeData = document.querySelector('input[id = "filter-marmalade"]');
-      filterMarmalade = filterMarmaladeData.checked;
+      filters.marmalade = filterMarmaladeData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnMarshmallows.addEventListener('click', window.debounce(function () {
       var filterMarshmallowsData = document.querySelector('input[id = "filter-marshmallows"]');
-      filterMarshmallows = filterMarshmallowsData.checked;
+      filters.marshmallows = filterMarshmallowsData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnSugarFree.addEventListener('click', window.debounce(function () {
       var filterSugarFreeData = document.querySelector('input[id = "filter-sugar-free"]');
-      filterSugarFree = filterSugarFreeData.checked;
+      filters.sugarFree = filterSugarFreeData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnVegetarian.addEventListener('click', window.debounce(function () {
       var filterVegetarianData = document.querySelector('input[id = "filter-vegetarian"]');
-      filterVegetarian = filterVegetarianData.checked;
+      filters.vegetarian = filterVegetarianData.checked;
       window.catalog.renderCards();
     }));
 
     itemBtnGlutenFree.addEventListener('click', window.debounce(function () {
       var filterGlutenFreeData = document.querySelector('input[id = "filter-gluten-free"]');
-      filterGlutenFree = filterGlutenFreeData.checked;
+      filters.glutenFree = filterGlutenFreeData.checked;
       window.catalog.renderCards();
     }));
 
@@ -165,9 +164,9 @@
       var filterFavoriteData = document.querySelector('input[id = "filter-favorite"]');
       var filterAvailabilityData = document.querySelector('input[id = "filter-availability"]');
       filterAvailabilityData.checked = false;
-      window.filterOnlyFavorite = filterFavoriteData.checked;
-      if (window.filterOnlyFavorite) {
-        filterOnlyAvailable = false;
+      window.filters.onlyFavorite = filterFavoriteData.checked;
+      if (window.filters.onlyFavorite) {
+        filters.onlyAvailable = false;
       }
       window.catalog.renderCards();
     }));
@@ -177,9 +176,9 @@
       var filterAvailabilityData = document.querySelector('input[id = "filter-availability"]');
       var filterFavoriteData = document.querySelector('input[id = "filter-favorite"]');
       filterFavoriteData.checked = false;
-      filterOnlyAvailable = filterAvailabilityData.checked;
-      if (filterOnlyAvailable) {
-        window.filterOnlyFavorite = false;
+      filters.onlyAvailable = filterAvailabilityData.checked;
+      if (filters.onlyAvailable) {
+        window.filters.onlyFavorite = false;
       }
       window.catalog.renderCards();
     }));
@@ -190,38 +189,25 @@
       var filterFavoriteData = document.querySelector('input[id = "filter-favorite"]');
       filterAvailabilityData.checked = false;
       filterFavoriteData.checked = false;
-      filterOnlyAvailable = false;
-      window.filterOnlyFavorite = false;
+      filters.onlyAvailable = false;
+      window.filters.onlyFavorite = false;
       window.catalog.renderCards();
     }));
-    setPrices(price.min, price.max);
-  };
-
-  var loadErrorHandler = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
-
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
   };
 
   var hasKindFilters = function () {
-    return filterIcecream || filterSoda || filterGum || filterMarmalade || filterMarshmallows;
+    return filters.icecream || filters.soda || filters.gum || filters.marmalade || filters.marshmallows;
   };
 
   var hasNutritionFilters = function () {
-    return filterSugarFree || filterVegetarian || filterGlutenFree;
+    return filters.sugarFree || filters.vegetarian || filters.glutenFree;
   };
 
   var sortGoods = function (cards) {
     switch (sortState) {
       case 'popular':
         cards.sort(function (a, b) {
-          return b.rating - a.rating;
+          return a.rating < b.rating ? 1 : -1;
         });
         break;
       case 'expensive':
@@ -244,11 +230,11 @@
 
   var checkFilter = function (good) {
 
-    if (window.filterOnlyFavorite && !good.inFavorite) {
+    if (window.filters.onlyFavorite && !good.inFavorite) {
       return false;
     }
 
-    if (filterOnlyAvailable) {
+    if (filters.onlyAvailable) {
       if (good.amount === 0) {
         return false;
       }
@@ -262,27 +248,27 @@
     if (hasKindFilters()) {
       switch (good.kind) {
         case 'Мороженое':
-          if (!filterIcecream) {
+          if (!filters.icecream) {
             return false;
           }
           break;
         case 'Газировка':
-          if (!filterSoda) {
+          if (!filters.soda) {
             return false;
           }
           break;
         case 'Жевательная резинка':
-          if (!filterGum) {
+          if (!filters.gum) {
             return false;
           }
           break;
         case 'Мармелад':
-          if (!filterMarmalade) {
+          if (!filters.marmalade) {
             return false;
           }
           break;
         case 'Зефир':
-          if (!filterMarshmallows) {
+          if (!filters.marshmallows) {
             return false;
           }
           break;
@@ -290,13 +276,13 @@
     }
 
     if (hasNutritionFilters()) {
-      if (good.nutritionFacts.sugar && filterSugarFree) {
+      if (good.nutritionFacts.sugar && filters.sugarFree) {
         return false;
       }
-      if (good.nutritionFacts.gluten && filterGlutenFree) {
+      if (good.nutritionFacts.gluten && filters.glutenFree) {
         return false;
       }
-      if (!good.nutritionFacts.vegetarian && filterVegetarian) {
+      if (!good.nutritionFacts.vegetarian && filters.vegetarian) {
         return false;
       }
     }
@@ -418,7 +404,28 @@
   };
   rightRange.addEventListener('mousedown', onRightRangeMouseDown);
 
+  var loadSuccessHandler = function () {
+    updateMinPrice(leftRange.offsetLeft);
+    updateMaxPrice(rightRange.offsetLeft);
+    listenButtonEvents();
+    setPrices(price.min, price.max);
+  };
+
+  var loadErrorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
   window.backend.load(loadSuccessHandler, loadErrorHandler);
+
+  window.filters = filters;
 
   window.filter = {
     checkFilter: checkFilter,

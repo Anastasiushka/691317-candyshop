@@ -19,7 +19,6 @@
   var favoriteCount = 0;
 
   var renderCards = function () {
-
     var rendered = 0;
     var fragment = document.createDocumentFragment();
     catalogCards.innerHTML = '<p class="catalog__load visually-hidden">Данные загружаются...</p>';
@@ -85,7 +84,6 @@
       catalogCards.innerHTML = '';
       catalogCards.appendChild(emptyFilters);
     }
-
   };
 
   var updateFavoriteCount = function () {
@@ -174,7 +172,7 @@
           cardFav.classList.remove('card__btn-favorite--selected');
           goods[eltData].inFavorite = false;
           favoriteCount--;
-          if (window.filterOnlyFavorite) {
+          if (window.filters.onlyFavorite) {
             renderCards();
           }
         } else {
@@ -268,7 +266,7 @@
   };
 
   var renderTrolleyFragment = function () {
-    window.enable.enableForm();
+    window.order.enableForm();
     var trolleyFragment = document.createDocumentFragment();
     for (var l = 0; l < trolleyGoods.length; l++) {
       trolleyFragment.appendChild(renderTrolleyCard(trolleyGoods[l]));
@@ -291,7 +289,7 @@
     } else {
       mainHeaderBasket.textContent = 'В корзине ничего нет';
       goodsCards.innerHTML = '<div class="goods__card-empty"><p><b>Странно, ты ещё ничего не добавил.</b></p><p>У нас столько всего вкусного и необычного, обязательно попробуй.</p></div>';
-      window.disable.disableForm();
+      window.order.disableForm();
     }
   };
 

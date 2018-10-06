@@ -51,44 +51,38 @@
     return digitSum % 10 === 0;
   };
 
-  window.disable = {
-    disableForm: function () {
-      cardNumber.disabled = true;
-      cardDate.disabled = true;
-      cardCvc.disabled = true;
-      cardholder.disabled = true;
-      contactDataName.disabled = true;
-      contactDataTel.disabled = true;
-      contactDataEmail.disabled = true;
-      deliverStreet.disabled = true;
-      deliverHouse.disabled = true;
-      deliverFloor.disabled = true;
-      deliverRoom.disabled = true;
-      deliverDescription.disabled = true;
-      buySubmitButton.disabled = true;
+  var enableForm = function () {
+    cardNumber.disabled = false;
+    cardDate.disabled = false;
+    cardCvc.disabled = false;
+    cardholder.disabled = false;
+    contactDataName.disabled = false;
+    contactDataTel.disabled = false;
+    contactDataEmail.disabled = false;
+    if (deliverStoreWrap.classList.contains('visually-hidden')) {
+      deliverStreet.disabled = false;
+      deliverHouse.disabled = false;
+      deliverFloor.disabled = false;
+      deliverRoom.disabled = false;
+      deliverDescription.disabled = false;
     }
+    buySubmitButton.disabled = false;
   };
 
-  window.disable.disableForm();
-
-  window.enable = {
-    enableForm: function () {
-      cardNumber.disabled = false;
-      cardDate.disabled = false;
-      cardCvc.disabled = false;
-      cardholder.disabled = false;
-      contactDataName.disabled = false;
-      contactDataTel.disabled = false;
-      contactDataEmail.disabled = false;
-      if (deliverStoreWrap.classList.contains('visually-hidden')) {
-        deliverStreet.disabled = false;
-        deliverHouse.disabled = false;
-        deliverFloor.disabled = false;
-        deliverRoom.disabled = false;
-        deliverDescription.disabled = false;
-      }
-      buySubmitButton.disabled = false;
-    }
+  var disableForm = function () {
+    cardNumber.disabled = true;
+    cardDate.disabled = true;
+    cardCvc.disabled = true;
+    cardholder.disabled = true;
+    contactDataName.disabled = true;
+    contactDataTel.disabled = true;
+    contactDataEmail.disabled = true;
+    deliverStreet.disabled = true;
+    deliverHouse.disabled = true;
+    deliverFloor.disabled = true;
+    deliverRoom.disabled = true;
+    deliverDescription.disabled = true;
+    buySubmitButton.disabled = true;
   };
 
   var choosePaymentCash = function () {
@@ -292,5 +286,12 @@
     window.backend.save(new FormData(orderCreation), saveSuccessHandler, saveErrorHandler);
     evt.preventDefault();
   });
+
+  disableForm();
+
+  window.order = {
+    enableForm: enableForm,
+    disableForm: disableForm
+  };
 
 })();
